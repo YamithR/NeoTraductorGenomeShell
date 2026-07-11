@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.neotraductor"
+          path="/org/gnome/shell/extensions/neotraductor/">
+
+    <key name="source-lang" type="s">
+      <default>'auto'</default>
+      <summary>Idioma origen</summary>
+      <description>Idioma de origen para traducción. Usar códigos ISO 639-1. 'auto' para detección automática.</description>
+    </key>
+
+    <key name="target-lang" type="s">
+      <default>'en'</default>
+      <summary>Idioma destino</summary>
+      <description>Idioma de destino para traducción.</description>
+    </key>
+
+    <key name="translate-provider" type="s">
+      <default>'apertium'</default>
+      <summary>Proveedor de traducción</summary>
+      <description>Servicio de traducción a usar: apertium, libretranslate, deepl, google</description>
+    </key>
+
+    <key name="api-key" type="s">
+      <default>''</default>
+      <summary>API Key</summary>
+      <description>API key para servicios que lo requieran (DeepL, Google, etc.)</description>
+    </key>
+
+    <key name="self-hosted-url" type="s">
+      <default>''</default>
+      <summary>URL auto-hosteada</summary>
+      <description>URL para instancia propia de LibreTranslate u otro servicio</description>
+    </key>
+
+    <key name="indicator-style" type="s">
+      <default>'icon'</default>
+      <summary>Estilo del indicador</summary>
+      <description>'text' para letra, 'icon' para icono simbólico</description>
+    </key>
+
+    <key name="button-color" type="s">
+      <default>'default'</default>
+      <summary>Color del botón</summary>
+      <description>Color del botón en el panel. Valores: default, red, green, blue, orange, purple</description>
+    </key>
+
+    <key name="auto-clipboard" type="b">
+      <default>false</default>
+      <summary>Copiar al portapapeles</summary>
+      <description>Copiar automáticamente la traducción al portapapeles</description>
+    </key>
+
+    <key name="shortcut-key" type="s">
+      <default>'&lt;Super&gt;t'</default>
+      <summary>Atajo de teclado</summary>
+      <description>Atajo global para abrir el traductor</description>
+    </key>
+
+    <key name="history-size" type="i">
+      <default>10</default>
+      <summary>Tamaño del historial</summary>
+      <description>Número de traducciones recientes a guardar (0 = desactivado)</description>
+    </key>
+
+    <key name="extra-languages" type="as">
+      <default>[]</default>
+      <summary>Paquetes de idiomas extra</summary>
+      <description>Lista de paquetes de idiomas adicionales instalados</description>
+    </key>
+
+    <key name="max-text-length" type="i">
+      <default>5000</default>
+      <summary>Límite de caracteres</summary>
+      <description>Máximo número de caracteres permitidos para traducción</description>
+    </key>
+
+    <key name="show-indicator" type="b">
+      <default>true</default>
+      <summary>Mostrar indicador</summary>
+      <description>Mostrar u ocultar el botón en el panel</description>
+    </key>
+
+    <key name="provider-timeout" type="i">
+      <default>10000</default>
+      <summary>Timeout del proveedor</summary>
+      <description>Tiempo máximo de espera para respuesta del proveedor (ms)</description>
+    </key>
+
+  </schema>
+</schemalist>

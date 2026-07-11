@@ -1,0 +1,57 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: NeoTraductor\n"
+"Language: es\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Escribe el texto a traducir..."
+msgstr "Escribe el texto a traducir..."
+
+msgid "Traducir"
+msgstr "Traducir"
+
+msgid "Traduciendo…"
+msgstr "Traduciendo…"
+
+msgid "Copiar"
+msgstr "Copiar"
+
+msgid "Abrir en navegador"
+msgstr "Abrir en navegador"
+
+msgid "Historial"
+msgstr "Historial"
+
+msgid "Preferencias"
+msgstr "Preferencias"
+
+msgid "Descargar paquetes de idiomas"
+msgstr "Descargar paquetes de idiomas"
+
+msgid "Intercambiar"
+msgstr "Intercambiar"
+
+msgid "Texto demasiado largo. Máximo %d caracteres."
+msgstr "Texto demasiado largo. Máximo %d caracteres."
+
+msgid "No se pudo traducir. Verifica tu conexión o cambia de proveedor."
+msgstr "No se pudo traducir. Verifica tu conexión o cambia de proveedor."
+
+msgid "Error: %s"
+msgstr "Error: %s"
+
+msgid "Idioma"
+msgstr "Idioma"
+
+msgid "%s → %s: %s"
+msgstr "%s → %s: %s"
+
+msgid "Función próxima: aquí podrás explorar y descargar paquetes de idiomas adicionales para la interfaz de NeoTraductor."
+msgstr "Función próxima: aquí podrás explorar y descargar paquetes de idiomas adicionales para la interfaz de NeoTraductor."
+
+msgid "Entendido"
+msgstr "Entendido"
+
+msgid "Paquetes de idiomas"
+msgstr "Paquetes de idiomas"

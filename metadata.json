@@ -1,0 +1,10 @@
+{
+    "uuid": "neotraductor@yamithr.dev",
+    "name": "NeoTraductor",
+    "description": "Traductor multilingüe con soporte para Google, Apertium, LibreTranslate y DeepL. Interfaz personalizable, historial y paquetes de idiomas descargables.",
+    "shell-version": ["45", "46", "47", "48"],
+    "url": "https://github.com/YamithR/NeoTraductorGenomeShell",
+    "gettext-domain": "neotraductor@yamithr.dev",
+    "settings-schema": "org.gnome.shell.extensions.neotraductor",
+    "version-name": "1.0.0"
+}

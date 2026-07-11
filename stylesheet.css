@@ -1,0 +1,213 @@
+/* =============================================
+   NeoTraductor GNOME Shell Extension - Stylesheet
+   Personalizable por el usuario
+   ============================================= */
+
+/* --- Panel Button --- */
+.neotraductor-panel-label {
+    font-weight: bold;
+    font-size: 14px;
+    padding: 0 8px;
+    text-align: center;
+    min-width: 24px;
+}
+
+/* Colores del botón */
+.neotraductor-color-red { color: #e74c3c; }
+.neotraductor-color-green { color: #2ecc71; }
+.neotraductor-color-blue { color: #3498db; }
+.neotraductor-color-orange { color: #e67e22; }
+.neotraductor-color-purple { color: #9b59b6; }
+
+/* --- Menu Box --- */
+.neotraductor-menu-box {
+    padding: 6px;
+    min-width: 320px;
+    max-width: 450px;
+}
+
+/* --- Language Selector --- */
+.neotraductor-lang-combo {
+    padding: 2px 6px;
+    border-radius: 6px;
+}
+
+.neotraductor-lang-combo:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* --- Swap Button --- */
+.neotraductor-swap-button {
+    padding: 2px 12px;
+    font-size: 14px;
+    text-align: center;
+    border-radius: 4px;
+}
+
+.neotraductor-swap-button:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* --- Input Section --- */
+.neotraductor-input-section {
+    padding: 4px 8px;
+    spacing: 6px;
+}
+
+/* --- Text Entry --- */
+#neotraductorTextEntry {
+    padding: 8px 12px;
+    border-radius: 12px;
+    color: rgb(220, 220, 220);
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    background-color: rgba(0, 0, 0, 0.25);
+    caret-color: rgb(220, 220, 220);
+    caret-size: 2px;
+    selection-background-color: rgba(52, 152, 219, 0.5);
+    selected-color: white;
+    width: 300px;
+    min-height: 36px;
+    transition-duration: 200ms;
+}
+
+#neotraductorTextEntry:focus {
+    border-color: rgba(52, 152, 219, 0.6);
+    background-color: rgba(0, 0, 0, 0.35);
+    color: white;
+}
+
+#neotraductorTextEntry:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* --- Translate Button --- */
+.neotraductor-translate-button {
+    padding: 6px 16px;
+    border-radius: 8px;
+    background-color: rgba(52, 152, 219, 0.3);
+    border: 1px solid rgba(52, 152, 219, 0.4);
+    font-weight: bold;
+    margin-top: 4px;
+}
+
+.neotraductor-translate-button:hover {
+    background-color: rgba(52, 152, 219, 0.5);
+}
+
+.neotraductor-translate-button:active {
+    background-color: rgba(52, 152, 219, 0.7);
+}
+
+/* --- Loading --- */
+.neotraductor-loading {
+    padding: 6px;
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
+}
+
+/* --- Result Box --- */
+.neotraductor-result-box {
+    padding: 8px 12px;
+    margin: 4px 8px;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    spacing: 6px;
+}
+
+/* --- Result Label --- */
+.neotraductor-result-label {
+    padding: 8px 4px;
+    font-size: 14px;
+    color: white;
+    selection-background-color: rgba(52, 152, 219, 0.5);
+    selected-color: white;
+}
+
+.neotraductor-result-label:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-radius: 6px;
+}
+
+/* --- Action Row --- */
+.neotraductor-action-row {
+    spacing: 8px;
+    padding-top: 4px;
+}
+
+/* --- Action Buttons --- */
+.neotraductor-action-button {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    background-color: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.neotraductor-action-button:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+.neotraductor-action-button:active {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* --- History Section --- */
+.neotraductor-history-section {
+    padding: 4px 8px;
+    spacing: 4px;
+}
+
+.neotraductor-history-title {
+    font-size: 11px;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.5);
+    padding: 4px 4px 2px 4px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* --- History Box --- */
+.neotraductor-history-box {
+    spacing: 2px;
+}
+
+/* --- History Item --- */
+.neotraductor-history-item {
+    padding: 6px 8px;
+    border-radius: 6px;
+    background-color: transparent;
+}
+
+.neotraductor-history-item:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+.neotraductor-history-text {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* --- Scrollbar styling for long lists --- */
+.neotraductor-history-box StScrollView {
+    padding: 0;
+}
+
+.neotraductor-history-box StScrollBar {
+    padding: 0;
+}
+
+.neotraductor-history-box StBin#trough {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+.neotraductor-history-box StButton#vhandle {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+}
+
+.neotraductor-history-box StButton#vhandle:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+}
