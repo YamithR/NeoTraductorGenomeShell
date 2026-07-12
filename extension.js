@@ -23,6 +23,7 @@ export default class NeoTraductorExtension extends Extension {
         this._translationInProgress = false;
 
         this._buildIndicator();
+        this._updateDynamicStyles();
         this._connectSettings();
         this._registerShortcut();
 
@@ -60,14 +61,16 @@ export default class NeoTraductorExtension extends Extension {
 
         let buttonWidget;
         if (style === 'text') {
+            const customText = this._settings.get_string('indicator-text') || 'T';
             buttonWidget = new St.Label({
-                text: 'T',
+                text: customText,
                 style_class: 'neotraductor-panel-label',
                 y_align: Clutter.ActorAlign.CENTER,
             });
         } else {
+            const customIcon = this._settings.get_string('indicator-icon') || ICON_NAME;
             buttonWidget = new St.Icon({
-                icon_name: ICON_NAME,
+                icon_name: customIcon,
                 style_class: 'system-status-icon',
                 fallback_icon_name: 'face-laugh-symbolic',
             });
@@ -78,6 +81,38 @@ export default class NeoTraductorExtension extends Extension {
         }
 
         this._indicator.add_child(buttonWidget);
+    }
+
+    _updateDynamicStyles() {
+        if (!this._indicator) return;
+
+        const menuBg = this._settings.get_string('menu-bg-color');
+        const opacity = this._settings.get_double('menu-opacity');
+        const resultBg = this._settings.get_string('result-bg-color');
+        const inputBg = this._settings.get_string('input-bg-color');
+
+        const menuBox = this._indicator.menu.box;
+
+        const parts = [];
+        if (opacity < 1.0) {
+            parts.push(`opacity: ${opacity};`);
+        }
+        if (menuBg !== 'default') {
+            parts.push(`background-color: ${menuBg};`);
+        }
+        menuBox.set_style(parts.join(' '));
+
+        if (this._resultBox) {
+            const rParts = [];
+            if (resultBg !== 'default') {
+                rParts.push(`background-color: ${resultBg};`);
+            }
+            this._resultBox.set_style(rParts.join(' '));
+        }
+
+        if (this._textEntry && inputBg !== 'default') {
+            this._textEntry.set_style(`background-color: ${inputBg};`);
+        }
     }
 
     _buildMenu() {
@@ -362,6 +397,12 @@ export default class NeoTraductorExtension extends Extension {
             this._settings.connect('changed::button-color', () => this._updateButtonStyle())
         );
         this._settingsChangedIds.push(
+            this._settings.connect('changed::indicator-text', () => this._updateButtonStyle())
+        );
+        this._settingsChangedIds.push(
+            this._settings.connect('changed::indicator-icon', () => this._updateButtonStyle())
+        );
+        this._settingsChangedIds.push(
             this._settings.connect('changed::history-size', () => {
                 if (this._settings.get_int('history-size') > 0) {
                     this._indicator.menu.addMenuItem(this._historySection);
@@ -379,6 +420,11 @@ export default class NeoTraductorExtension extends Extension {
                 }
             })
         );
+        ['menu-bg-color', 'menu-opacity', 'result-bg-color', 'input-bg-color'].forEach(key => {
+            this._settingsChangedIds.push(
+                this._settings.connect(`changed::${key}`, () => this._updateDynamicStyles())
+            );
+        });
     }
 
     _disconnectSettings() {

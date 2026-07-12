@@ -39,6 +39,18 @@
       <description>'text' para letra, 'icon' para icono simbólico</description>
     </key>
 
+    <key name="indicator-text" type="s">
+      <default>'T'</default>
+      <summary>Texto del indicador</summary>
+      <description>Texto a mostrar cuando el estilo del indicador es 'text'</description>
+    </key>
+
+    <key name="indicator-icon" type="s">
+      <default>'edit-find-symbolic'</default>
+      <summary>Icono del indicador</summary>
+      <description>Nombre del icono a mostrar cuando el estilo del indicador es 'icon'</description>
+    </key>
+
     <key name="button-color" type="s">
       <default>'default'</default>
       <summary>Color del botón</summary>
@@ -85,6 +97,30 @@
       <default>10000</default>
       <summary>Timeout del proveedor</summary>
       <description>Tiempo máximo de espera para respuesta del proveedor (ms)</description>
+    </key>
+
+    <key name="menu-bg-color" type="s">
+      <default>'default'</default>
+      <summary>Color de fondo del menú</summary>
+      <description>Color de fondo del menú desplegable. default, dark, #hex, o rgb(r,g,b)</description>
+    </key>
+
+    <key name="menu-opacity" type="d">
+      <default>1.0</default>
+      <summary>Opacidad del menú</summary>
+      <description>Nivel de opacidad del menú y elementos. 0.0 (transparente) a 1.0 (sólido)</description>
+    </key>
+
+    <key name="result-bg-color" type="s">
+      <default>'default'</default>
+      <summary>Color de fondo del resultado</summary>
+      <description>Color de fondo del área de resultado de traducción</description>
+    </key>
+
+    <key name="input-bg-color" type="s">
+      <default>'default'</default>
+      <summary>Color de fondo del campo de texto</summary>
+      <description>Color de fondo del campo de entrada de texto</description>
     </key>
 
   </schema>

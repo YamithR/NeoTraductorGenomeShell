@@ -127,18 +127,35 @@ export default class NeoTraductorPreferences extends ExtensionPreferences {
 
         const styleRow = new Adw.ComboRow({
             title: _('Estilo'),
-            subtitle: _('Texto "T" o icono en el panel'),
+            subtitle: _('Ícono o texto personalizado en el panel'),
         });
         const styleList = new Gtk.StringList();
-        styleList.append(_('Icono'));
+        styleList.append(_('Ícono'));
         styleList.append(_('Texto'));
         styleRow.set_model(styleList);
         const currentStyle = window._settings.get_string('indicator-style');
         styleRow.set_selected(currentStyle === 'text' ? 1 : 0);
         styleRow.connect('notify::selected', row => {
             window._settings.set_string('indicator-style', row.get_selected() === 1 ? 'text' : 'icon');
+            this._updateIndicatorFieldsVisibility(window);
         });
         indicatorGroup.add(styleRow);
+
+        this._iconNameRow = new Adw.EntryRow({
+            title: _('Nombre del ícono'),
+            subtitle: _('Ej: edit-find-symbolic, face-laugh-symbolic, accessories-dictionary-symbolic'),
+        });
+        window._settings.bind('indicator-icon', this._iconNameRow, 'text', Gio.SettingsBindFlags.DEFAULT);
+        indicatorGroup.add(this._iconNameRow);
+
+        this._indicatorTextRow = new Adw.EntryRow({
+            title: _('Texto del indicador'),
+            subtitle: _('Texto a mostrar (ej: T, N, TR)'),
+        });
+        window._settings.bind('indicator-text', this._indicatorTextRow, 'text', Gio.SettingsBindFlags.DEFAULT);
+        indicatorGroup.add(this._indicatorTextRow);
+
+        this._updateIndicatorFieldsVisibility(window);
 
         const colorRow = new Adw.ComboRow({
             title: _('Color'),
@@ -165,6 +182,49 @@ export default class NeoTraductorPreferences extends ExtensionPreferences {
             }
         });
         indicatorGroup.add(colorRow);
+
+        const styleGroup = new Adw.PreferencesGroup({
+            title: _('Estilos avanzados'),
+            description: _('Personaliza colores de fondo y transparencia de los elementos. Usa nombres (default, dark) o códigos hex (#rrggbb)'),
+        });
+        page.add(styleGroup);
+
+        const menuBgRow = new Adw.EntryRow({
+            title: _('Fondo del menú'),
+        });
+        window._settings.bind('menu-bg-color', menuBgRow, 'text', Gio.SettingsBindFlags.DEFAULT);
+        styleGroup.add(menuBgRow);
+
+        const resultBgRow = new Adw.EntryRow({
+            title: _('Fondo del resultado'),
+        });
+        window._settings.bind('result-bg-color', resultBgRow, 'text', Gio.SettingsBindFlags.DEFAULT);
+        styleGroup.add(resultBgRow);
+
+        const inputBgRow = new Adw.EntryRow({
+            title: _('Fondo del campo de texto'),
+        });
+        window._settings.bind('input-bg-color', inputBgRow, 'text', Gio.SettingsBindFlags.DEFAULT);
+        styleGroup.add(inputBgRow);
+
+        const opacityRow = new Adw.SpinRow({
+            title: _('Opacidad del menú'),
+            subtitle: _('0.0 (transparente) a 1.0 (sólido)'),
+            adjustment: new Gtk.Adjustment({
+                lower: 0.0,
+                upper: 1.0,
+                step_increment: 0.05,
+                page_increment: 0.1,
+            }),
+        });
+        window._settings.bind('menu-opacity', opacityRow, 'value', Gio.SettingsBindFlags.DEFAULT);
+        styleGroup.add(opacityRow);
+    }
+
+    _updateIndicatorFieldsVisibility(window) {
+        const style = window._settings.get_string('indicator-style');
+        this._iconNameRow.visible = style === 'icon';
+        this._indicatorTextRow.visible = style === 'text';
     }
 
     _addLanguagesPage(window) {
