@@ -303,7 +303,8 @@ export default class NeoTraductorExtension extends Extension {
 
     _copyToClipboard(text) {
         try {
-            St.Clipboard.get_default().set_text(St.ClipboardType.CLIPBOARD, text);
+            const type = St.ClipboardType?.CLIPBOARD ?? St.ClipboardType?.PRIMARY ?? 0;
+            St.Clipboard.get_default().set_text(type, text);
         } catch (e) {
             console.warn(`NeoTraductor: Error copiando al portapapeles: ${e}`);
         }
