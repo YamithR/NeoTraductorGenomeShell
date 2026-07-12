@@ -10,10 +10,11 @@ import Shell from 'gi://Shell';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 
-import {LANGUAGES, getLanguageInfo, getLanguageName, getNativeName, getLanguageFlag} from './utils/languages.js';
+import {LANGUAGES, getLanguageInfo, getLanguageName, getNativeName, getLanguageFlag, normalizeLangCode} from './utils/languages.js';
 import {translateText, getAvailableProviders} from './utils/translator.js';
 
-const ICON_NAME = 'accessories-dictionary-symbolic';
+const ICON_NAME = 'edit-find-symbolic';
+const FALLBACK_ICONS = ['edit-find-symbolic', 'system-search-symbolic', 'emblem-system-symbolic'];
 
 export default class NeoTraductorExtension extends Extension {
     enable() {
@@ -69,6 +70,7 @@ export default class NeoTraductorExtension extends Extension {
             buttonWidget = new St.Icon({
                 icon_name: ICON_NAME,
                 style_class: 'system-status-icon',
+                fallback_icon_name: 'face-laugh-symbolic',
             });
         }
 
@@ -261,13 +263,16 @@ export default class NeoTraductorExtension extends Extension {
             return;
         }
 
+        const normSource = normalizeLangCode(source);
+        const normTarget = normalizeLangCode(target);
+
         this._translationInProgress = true;
         this._loadingLabel.text = _('Traduciendo…');
         this._loadingLabel.visible = true;
         this._resultBox.visible = false;
 
         try {
-            const result = await translateText(text, source, target, provider, apiKey, selfHostedUrl, timeout);
+            const result = await translateText(text, normSource, normTarget, provider, apiKey, selfHostedUrl, timeout);
             if (result) {
                 this._showResult(result);
                 this._addToHistory(text, result, source, target);

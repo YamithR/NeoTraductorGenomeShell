@@ -1,0 +1,54 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: NeoTraductor\n"
+"Language: ja\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Escribe el texto a traducir..."
+msgstr "翻訳するテキストを入力..."
+
+msgid "Traducir"
+msgstr "翻訳"
+
+msgid "Traduciendo…"
+msgstr "翻訳中…"
+
+msgid "Copiar"
+msgstr "コピー"
+
+msgid "Abrir en navegador"
+msgstr "ブラウザで開く"
+
+msgid "Historial"
+msgstr "履歴"
+
+msgid "Preferencias"
+msgstr "設定"
+
+msgid "Descargar paquetes de idiomas"
+msgstr "言語パッケージをダウンロード"
+
+msgid "Intercambiar"
+msgstr "入れ替え"
+
+msgid "Texto demasiado largo. Máximo %d caracteres."
+msgstr "テキストが長すぎます。最大 %d 文字。"
+
+msgid "No se pudo traducir. Verifica tu conexión o cambia de proveedor."
+msgstr "翻訳できませんでした。接続を確認するか、プロバイダーを変更してください。"
+
+msgid "Error: %s"
+msgstr "エラー: %s"
+
+msgid "Idioma"
+msgstr "言語"
+
+msgid "%s → %s: %s"
+msgstr "%s → %s: %s"
+
+msgid "Entendido"
+msgstr "了解"
+
+msgid "Paquetes de idiomas"
+msgstr "言語パッケージ"

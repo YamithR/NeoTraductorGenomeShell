@@ -1,0 +1,54 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: NeoTraductor\n"
+"Language: ko\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Escribe el texto a traducir..."
+msgstr "번역할 텍스트를 입력하세요..."
+
+msgid "Traducir"
+msgstr "번역"
+
+msgid "Traduciendo…"
+msgstr "번역 중…"
+
+msgid "Copiar"
+msgstr "복사"
+
+msgid "Abrir en navegador"
+msgstr "브라우저에서 열기"
+
+msgid "Historial"
+msgstr "기록"
+
+msgid "Preferencias"
+msgstr "설정"
+
+msgid "Descargar paquetes de idiomas"
+msgstr "언어 팩 다운로드"
+
+msgid "Intercambiar"
+msgstr "바꾸기"
+
+msgid "Texto demasiado largo. Máximo %d caracteres."
+msgstr "텍스트가 너무 깁니다. 최대 %d자。"
+
+msgid "No se pudo traducir. Verifica tu conexión o cambia de proveedor."
+msgstr "번역할 수 없습니다. 연결을 확인하거나 제공자를 변경하세요."
+
+msgid "Error: %s"
+msgstr "오류: %s"
+
+msgid "Idioma"
+msgstr "언어"
+
+msgid "%s → %s: %s"
+msgstr "%s → %s: %s"
+
+msgid "Entendido"
+msgstr "확인"
+
+msgid "Paquetes de idiomas"
+msgstr "언어 팩"

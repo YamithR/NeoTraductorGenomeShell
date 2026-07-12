@@ -6,5 +6,5 @@
     "url": "https://github.com/YamithR/NeoTraductorGenomeShell",
     "gettext-domain": "neotraductor@yamithr.dev",
     "settings-schema": "org.gnome.shell.extensions.neotraductor",
-    "version-name": "1.0.0"
+    "version-name": "1.1.0"
 }

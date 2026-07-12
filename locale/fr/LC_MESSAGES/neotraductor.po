@@ -1,0 +1,54 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: NeoTraductor\n"
+"Language: fr\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Escribe el texto a traducir..."
+msgstr "Écrivez le texte à traduire..."
+
+msgid "Traducir"
+msgstr "Traduire"
+
+msgid "Traduciendo…"
+msgstr "Traduction…"
+
+msgid "Copiar"
+msgstr "Copier"
+
+msgid "Abrir en navegador"
+msgstr "Ouvrir dans le navigateur"
+
+msgid "Historial"
+msgstr "Historique"
+
+msgid "Preferencias"
+msgstr "Préférences"
+
+msgid "Descargar paquetes de idiomas"
+msgstr "Télécharger des packs de langues"
+
+msgid "Intercambiar"
+msgstr "Échanger"
+
+msgid "Texto demasiado largo. Máximo %d caracteres."
+msgstr "Texte trop long. Maximum %d caractères."
+
+msgid "No se pudo traducir. Verifica tu conexión o cambia de proveedor."
+msgstr "Impossible de traduire. Vérifiez votre connexion ou changez de fournisseur."
+
+msgid "Error: %s"
+msgstr "Erreur : %s"
+
+msgid "Idioma"
+msgstr "Langue"
+
+msgid "%s → %s: %s"
+msgstr "%s → %s : %s"
+
+msgid "Entendido"
+msgstr "Compris"
+
+msgid "Paquetes de idiomas"
+msgstr "Packs de langues"

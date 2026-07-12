@@ -16,7 +16,7 @@
     </key>
 
     <key name="translate-provider" type="s">
-      <default>'apertium'</default>
+      <default>'libretranslate'</default>
       <summary>Proveedor de traducción</summary>
       <description>Servicio de traducción a usar: apertium, libretranslate, deepl, google</description>
     </key>

@@ -1,0 +1,54 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: NeoTraductor\n"
+"Language: zh_CN\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Escribe el texto a traducir..."
+msgstr "输入要翻译的文本..."
+
+msgid "Traducir"
+msgstr "翻译"
+
+msgid "Traduciendo…"
+msgstr "翻译中…"
+
+msgid "Copiar"
+msgstr "复制"
+
+msgid "Abrir en navegador"
+msgstr "在浏览器中打开"
+
+msgid "Historial"
+msgstr "历史记录"
+
+msgid "Preferencias"
+msgstr "首选项"
+
+msgid "Descargar paquetes de idiomas"
+msgstr "下载语言包"
+
+msgid "Intercambiar"
+msgstr "交换"
+
+msgid "Texto demasiado largo. Máximo %d caracteres."
+msgstr "文本过长。最多 %d 个字符。"
+
+msgid "No se pudo traducir. Verifica tu conexión o cambia de proveedor."
+msgstr "无法翻译。请检查您的连接或更换提供商。"
+
+msgid "Error: %s"
+msgstr "错误: %s"
+
+msgid "Idioma"
+msgstr "语言"
+
+msgid "%s → %s: %s"
+msgstr "%s → %s: %s"
+
+msgid "Entendido"
+msgstr "知道了"
+
+msgid "Paquetes de idiomas"
+msgstr "语言包"

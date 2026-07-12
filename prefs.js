@@ -6,10 +6,12 @@ import GLib from 'gi://GLib';
 import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 import {LANGUAGES, getLanguageCodes} from './utils/languages.js';
 import {getAvailableProviders} from './utils/translator.js';
+import {getInstalledPacks, fetchAvailableLanguagePacks, downloadLanguagePack, removeLanguagePack} from './utils/downloader.js';
 
 export default class NeoTraductorPreferences extends ExtensionPreferences {
     fillPreferencesWindow(window) {
         window._settings = this.getSettings();
+        window._extensionDir = this.path;
 
         this._addGeneralPage(window);
         this._addAppearancePage(window);
@@ -45,7 +47,7 @@ export default class NeoTraductorPreferences extends ExtensionPreferences {
             const idx = row.get_selected();
             if (idx >= 0 && idx < providers.length) {
                 window._settings.set_string('translate-provider', providers[idx].id);
-                this._updateApiKeyVisibility(window, providers[idx].needsKey);
+                this._updateVisibility(window, providers[idx]);
             }
         });
         translationGroup.add(providerRow);
@@ -54,8 +56,6 @@ export default class NeoTraductorPreferences extends ExtensionPreferences {
             title: _('API Key'),
         });
         window._settings.bind('api-key', this._apiKeyRow, 'text', Gio.SettingsBindFlags.DEFAULT);
-        const currentProv = providers.find(p => p.id === currentProvider);
-        this._updateApiKeyVisibility(window, currentProv?.needsKey || false);
         translationGroup.add(this._apiKeyRow);
 
         this._selfHostedRow = new Adw.EntryRow({
@@ -63,6 +63,9 @@ export default class NeoTraductorPreferences extends ExtensionPreferences {
         });
         window._settings.bind('self-hosted-url', this._selfHostedRow, 'text', Gio.SettingsBindFlags.DEFAULT);
         translationGroup.add(this._selfHostedRow);
+
+        const currentProv = providers.find(p => p.id === currentProvider);
+        this._updateVisibility(window, currentProv || providers[0]);
 
         const limitsGroup = new Adw.PreferencesGroup({
             title: _('Límites'),
@@ -97,8 +100,9 @@ export default class NeoTraductorPreferences extends ExtensionPreferences {
         limitsGroup.add(timeoutRow);
     }
 
-    _updateApiKeyVisibility(window, needsKey) {
-        this._apiKeyRow.visible = needsKey;
+    _updateVisibility(window, provider) {
+        this._apiKeyRow.visible = provider.needsKey;
+        this._selfHostedRow.visible = provider.id === 'libretranslate';
     }
 
     _addAppearancePage(window) {
@@ -222,39 +226,91 @@ export default class NeoTraductorPreferences extends ExtensionPreferences {
 
         const downloadGroup = new Adw.PreferencesGroup({
             title: _('Paquetes de idiomas'),
-            description: _('Descarga paquetes de idiomas adicionales para la interfaz'),
+            description: _('Instala o elimina paquetes de idiomas para la interfaz de NeoTraductor'),
         });
         page.add(downloadGroup);
 
-        const downloadBtn = new Gtk.Button({
-            label: _('Descargar paquetes disponibles…'),
+        const manageBtn = new Gtk.Button({
+            label: _('Gestionar paquetes de idiomas…'),
             halign: Gtk.Align.START,
             margin_top: 8,
         });
-        downloadBtn.connect('clicked', () => {
+        manageBtn.connect('clicked', () => {
             this._showLanguagePackDialog(window);
         });
-        downloadGroup.add(downloadBtn);
-
-        const installedLabel = new Gtk.Label({
-            label: _('Los paquetes instalados aparecerán aquí.'),
-            margin_top: 8,
-            use_markup: true,
-            wrap: true,
-            xalign: 0,
-        });
-        downloadGroup.add(installedLabel);
+        downloadGroup.add(manageBtn);
     }
 
     _showLanguagePackDialog(window) {
+        const installed = getInstalledPacks(window._extensionDir);
         const dialog = new Adw.MessageDialog({
             transient_for: window,
             heading: _('Paquetes de idiomas'),
-            body: _('Función próxima: aquí podrás explorar y descargar paquetes de idiomas adicionales para la interfaz de NeoTraductor.'),
-            close_response: 'ok',
+            body: _('Paquetes instalados: %s').format(installed.length > 0 ? installed.join(', ') : _('ninguno')),
+            close_response: 'cerrar',
         });
-        dialog.add_response('ok', _('Entendido'));
+        dialog.add_response('cerrar', _('Cerrar'));
+
+        const PACKS_LIST = [
+            { code: 'ca', name: 'Català' },
+            { code: 'es', name: 'Español' },
+            { code: 'fr', name: 'Français' },
+            { code: 'de', name: 'Deutsch' },
+            { code: 'it', name: 'Italiano' },
+            { code: 'pt', name: 'Português' },
+            { code: 'pt_BR', name: 'Português (Brasil)' },
+            { code: 'ru', name: 'Русский' },
+            { code: 'ja', name: '日本語' },
+            { code: 'ko', name: '한국어' },
+            { code: 'zh_CN', name: '简体中文' },
+        ];
+
+        const installGroup = new Adw.PreferencesGroup({
+            title: _('Disponibles'),
+            margin_top: 12,
+        });
+        dialog.set_extra_child(installGroup);
+
+        const available = PACKS_LIST.filter(p => !installed.includes(p.code));
+
+        if (available.length === 0) {
+            installGroup.add(new Adw.ActionRow({
+                title: _('Todos los paquetes están instalados'),
+                subtitle: _('No hay más paquetes disponibles'),
+            }));
+        } else {
+            available.forEach(pack => {
+                const row = new Adw.ActionRow({
+                    title: pack.name,
+                    subtitle: pack.code,
+                });
+                const installBtn = new Gtk.Button({
+                    label: _('Instalar'),
+                    css_classes: ['suggested-action'],
+                });
+                installBtn.connect('clicked', () => {
+                    installBtn.sensitive = false;
+                    installBtn.label = _('Instalando…');
+                    this._performInstall(window, pack.code, installBtn);
+                });
+                row.add_suffix(installBtn);
+                installGroup.add(row);
+            });
+        }
+
         dialog.present();
+    }
+
+    _performInstall(window, code, btn) {
+        downloadLanguagePack(code, window._extensionDir, null, 30000)
+            .then(() => {
+                btn.label = _('✔ Instalado');
+                btn.sensitive = false;
+            })
+            .catch(err => {
+                btn.label = _('Error');
+                btn.sensitive = true;
+            });
     }
 
     _addAdvancedPage(window) {
@@ -314,7 +370,7 @@ export default class NeoTraductorPreferences extends ExtensionPreferences {
         aboutGroup.add(aboutRow);
 
         const versionLabel = new Gtk.Label({
-            label: '1.0.0',
+            label: '1.1.0',
             css_classes: ['caption'],
         });
         aboutRow.add_suffix(versionLabel);

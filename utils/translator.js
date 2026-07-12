@@ -1,5 +1,6 @@
 import Soup from 'gi://Soup?version=3.0';
 import GLib from 'gi://GLib';
+import Gio from 'gi://Gio';
 
 const PROVIDERS = {
     apertium: {
@@ -7,16 +8,8 @@ const PROVIDERS = {
         needsKey: false,
         translate: async (text, source, target, _apiKey, timeout) => {
             const session = new Soup.Session();
-            const params = {
-                q: text,
-                langpair: `${source || 'auto'}|${target}`,
-                format: 'json',
-                markUnknown: 'no',
-            };
-            const encoded = Object.entries(params)
-                .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
-                .join('&');
-            const uri = `https://apertium.org/apy/translate?${encoded}`;
+            const langpair = `${source || 'auto'}|${target}`;
+            const uri = `https://apertium.org/apy/translate?q=${encodeURIComponent(text)}&langpair=${encodeURIComponent(langpair)}&format=json&markUnknown=no`;
             const message = new Soup.Message({ method: 'GET', uri });
             return await _sendRequest(session, message, timeout);
         },
@@ -27,7 +20,7 @@ const PROVIDERS = {
                     return json.responseData.translatedText;
                 if (json.translatedText)
                     return json.translatedText;
-                return null;
+                return json.responseStatus === 200 ? '' : null;
             } catch {
                 return null;
             }
@@ -60,7 +53,9 @@ const PROVIDERS = {
         parseResponse: (data) => {
             try {
                 const json = JSON.parse(data);
-                return json.translatedText || null;
+                if (json.translatedText) return json.translatedText;
+                if (json.error) throw new Error(json.error);
+                return null;
             } catch {
                 return null;
             }
@@ -83,10 +78,7 @@ const PROVIDERS = {
                 .join('&');
             const free = apiKey.endsWith(':fx') ? '-free' : '';
             const uri = `https://api${free}.deepl.com/v2/translate`;
-            const message = new Soup.Message({
-                method: 'POST',
-                uri,
-            });
+            const message = new Soup.Message({ method: 'POST', uri });
             message.get_request_headers().append('Content-Type', 'application/x-www-form-urlencoded');
             message.get_request_headers().append('Authorization', `DeepL-Auth-Key ${apiKey}`);
             message.set_request_body_from_bytes(
@@ -118,7 +110,6 @@ const PROVIDERS = {
                 format: 'text',
             };
             if (source && source !== 'auto') params.source = source;
-            else params.source = 'en';
             if (apiKey) params.key = apiKey;
             const encoded = Object.entries(params)
                 .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
@@ -142,17 +133,23 @@ const PROVIDERS = {
 
 function _sendRequest(session, message, timeout = 10000) {
     return new Promise((resolve, reject) => {
-        const cancellable = new GLib.Bytes();
-        const timeoutId = setTimeout(() => {
-            session.cancel();
+        const cancellable = Gio.Cancellable.new();
+        let timeoutId = 0;
+        timeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, timeout, () => {
+            cancellable.cancel();
             reject(new Error('Tiempo de espera agotado'));
-        }, timeout);
-        session.send_and_read_async(message, GLib.PRIORITY_DEFAULT, null, (src, res) => {
-            clearTimeout(timeoutId);
+            return GLib.SOURCE_REMOVE;
+        });
+        session.send_and_read_async(message, GLib.PRIORITY_DEFAULT, cancellable, (src, res) => {
+            if (timeoutId > 0) {
+                GLib.source_remove(timeoutId);
+                timeoutId = 0;
+            }
             try {
                 const status = message.get_status();
                 if (status !== Soup.Status.OK) {
-                    reject(new Error(`Error HTTP ${status}: ${message.get_reason_phrase()}`));
+                    const reason = message.get_reason_phrase() || '';
+                    reject(new Error(`Error HTTP ${status}${reason ? ': ' + reason : ''}`));
                     return;
                 }
                 const bytes = src.send_and_read_finish(res);
@@ -166,7 +163,7 @@ function _sendRequest(session, message, timeout = 10000) {
     });
 }
 
-export async function translateText(text, source, target, provider = 'apertium', apiKey = '', selfHostedUrl = '', timeout = 10000) {
+export async function translateText(text, source, target, provider = 'libretranslate', apiKey = '', selfHostedUrl = '', timeout = 10000) {
     const providerConfig = PROVIDERS[provider];
     if (!providerConfig) throw new Error(`Proveedor "${provider}" no soportado`);
     if (providerConfig.needsKey && !apiKey)

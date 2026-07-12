@@ -15,7 +15,7 @@ export const LANGUAGES = {
     ca: { name: 'Catalan', native: 'Català', flag: '🇪🇸' },
     ceb: { name: 'Cebuano', native: 'Cebuano', flag: '🇵🇭' },
     ny: { name: 'Chichewa', native: 'Chichewa', flag: '🇲🇼' },
-    zh: { name: 'Chinese (Simplified)', native: '简体中文', flag: '🇨🇳' },
+    zh: { name: 'Chinese', native: '中文', flag: '🇨🇳' },
     zh_TW: { name: 'Chinese (Traditional)', native: '繁體中文', flag: '🇹🇼' },
     co: { name: 'Corsican', native: 'Corsu', flag: '🇫🇷' },
     hr: { name: 'Croatian', native: 'Hrvatski', flag: '🇭🇷' },
@@ -128,4 +128,12 @@ export function getNativeName(code) {
 
 export function getLanguageFlag(code) {
     return LANGUAGES[code]?.flag || '🌐';
+}
+
+const NORMALIZE_MAP = {
+    'zh_TW': 'zh',
+    'zh_CN': 'zh',
+};
+export function normalizeLangCode(code) {
+    return NORMALIZE_MAP[code] || code;
 }

@@ -1,0 +1,54 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: NeoTraductor\n"
+"Language: ru\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Escribe el texto a traducir..."
+msgstr "Введите текст для перевода..."
+
+msgid "Traducir"
+msgstr "Перевести"
+
+msgid "Traduciendo…"
+msgstr "Перевод…"
+
+msgid "Copiar"
+msgstr "Копировать"
+
+msgid "Abrir en navegador"
+msgstr "Открыть в браузере"
+
+msgid "Historial"
+msgstr "История"
+
+msgid "Preferencias"
+msgstr "Настройки"
+
+msgid "Descargar paquetes de idiomas"
+msgstr "Скачать языковые пакеты"
+
+msgid "Intercambiar"
+msgstr "Поменять"
+
+msgid "Texto demasiado largo. Máximo %d caracteres."
+msgstr "Текст слишком длинный. Максимум %d символов."
+
+msgid "No se pudo traducir. Verifica tu conexión o cambia de proveedor."
+msgstr "Не удалось перевести. Проверьте подключение или смените провайдера."
+
+msgid "Error: %s"
+msgstr "Ошибка: %s"
+
+msgid "Idioma"
+msgstr "Язык"
+
+msgid "%s → %s: %s"
+msgstr "%s → %s: %s"
+
+msgid "Entendido"
+msgstr "Понятно"
+
+msgid "Paquetes de idiomas"
+msgstr "Языковые пакеты"
