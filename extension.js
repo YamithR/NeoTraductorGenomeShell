@@ -2,7 +2,6 @@ import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/ex
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
-import * as Clipboard from 'resource:///org/gnome/shell/ui/clipboard.js';
 import St from 'gi://St';
 import Clutter from 'gi://Clutter';
 import Meta from 'gi://Meta';
@@ -303,7 +302,11 @@ export default class NeoTraductorExtension extends Extension {
     }
 
     _copyToClipboard(text) {
-        Clipboard.getClipboard().setText(text);
+        try {
+            St.Clipboard.get_default().set_text(St.ClipboardType.CLIPBOARD, text);
+        } catch (e) {
+            console.warn(`NeoTraductor: Error copiando al portapapeles: ${e}`);
+        }
     }
 
     _openInBrowser() {
