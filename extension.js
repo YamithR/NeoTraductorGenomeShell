@@ -10,7 +10,7 @@ import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 
 import {LANGUAGES, getLanguageInfo, getLanguageName, getNativeName, getLanguageFlag, normalizeLangCode} from './utils/languages.js';
-import {translateText, getAvailableProviders} from './utils/translator.js';
+import {translateText} from './utils/translator.js';
 
 const ICON_NAME = 'edit-find-symbolic';
 const FALLBACK_ICONS = ['edit-find-symbolic', 'system-search-symbolic', 'emblem-system-symbolic'];
@@ -286,11 +286,7 @@ export default class NeoTraductorExtension extends Extension {
 
         const source = this._settings.get_string('source-lang');
         const target = this._settings.get_string('target-lang');
-        const provider = this._settings.get_string('translate-provider');
-        const apiKey = this._settings.get_string('api-key');
-        const selfHostedUrl = this._settings.get_string('self-hosted-url');
         const maxLen = this._settings.get_int('max-text-length');
-        const timeout = this._settings.get_int('provider-timeout');
 
         if (text.length > maxLen) {
             this._showResult(_('Texto demasiado largo. Máximo %d caracteres.').format(maxLen));
@@ -306,7 +302,7 @@ export default class NeoTraductorExtension extends Extension {
         this._resultBox.visible = false;
 
         try {
-            const result = await translateText(text, normSource, normTarget, provider, apiKey, selfHostedUrl, timeout);
+            const result = await translateText(text, normSource, normTarget);
             if (result) {
                 this._showResult(result);
                 this._addToHistory(text, result, source, target);
@@ -314,7 +310,7 @@ export default class NeoTraductorExtension extends Extension {
                     this._copyToClipboard(result);
                 }
             } else {
-                this._showResult(_('No se pudo traducir. Verifica tu conexión o cambia de proveedor.'));
+                this._showResult(_('No se pudo traducir. Verifica tu conexión.'));
             }
         } catch (e) {
             this._showResult(_('Error: %s').format(e.message));

@@ -24,6 +24,7 @@
     padding: 6px;
     min-width: 320px;
     max-width: 450px;
+    background-color: rgba(30, 30, 30, 0.95);
 }
 
 /* --- Language Selector --- */

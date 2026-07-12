@@ -5,7 +5,6 @@ import GLib from 'gi://GLib';
 
 import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 import {LANGUAGES, getLanguageCodes} from './utils/languages.js';
-import {getAvailableProviders} from './utils/translator.js';
 import {getInstalledPacks, fetchAvailableLanguagePacks, downloadLanguagePack, removeLanguagePack} from './utils/downloader.js';
 
 export default class NeoTraductorPreferences extends ExtensionPreferences {
@@ -13,96 +12,9 @@ export default class NeoTraductorPreferences extends ExtensionPreferences {
         window._settings = this.getSettings();
         window._extensionDir = this.path;
 
-        this._addGeneralPage(window);
         this._addAppearancePage(window);
         this._addLanguagesPage(window);
         this._addAdvancedPage(window);
-    }
-
-    _addGeneralPage(window) {
-        const page = new Adw.PreferencesPage({
-            title: _('General'),
-            icon_name: 'preferences-system-symbolic',
-        });
-        window.add(page);
-
-        const translationGroup = new Adw.PreferencesGroup({
-            title: _('Traducción'),
-            description: _('Configuración del servicio de traducción'),
-        });
-        page.add(translationGroup);
-
-        const providerRow = new Adw.ComboRow({
-            title: _('Proveedor'),
-            subtitle: _('Servicio de traducción a utilizar'),
-        });
-        const providers = getAvailableProviders();
-        const providerList = new Gtk.StringList();
-        providers.forEach(p => providerList.append(p.name));
-        providerRow.set_model(providerList);
-        const currentProvider = window._settings.get_string('translate-provider');
-        const currentIdx = providers.findIndex(p => p.id === currentProvider);
-        if (currentIdx >= 0) providerRow.set_selected(currentIdx);
-        providerRow.connect('notify::selected', row => {
-            const idx = row.get_selected();
-            if (idx >= 0 && idx < providers.length) {
-                window._settings.set_string('translate-provider', providers[idx].id);
-                this._updateVisibility(window, providers[idx]);
-            }
-        });
-        translationGroup.add(providerRow);
-
-        this._apiKeyRow = new Adw.EntryRow({
-            title: _('API Key'),
-        });
-        window._settings.bind('api-key', this._apiKeyRow, 'text', Gio.SettingsBindFlags.DEFAULT);
-        translationGroup.add(this._apiKeyRow);
-
-        this._selfHostedRow = new Adw.EntryRow({
-            title: _('URL auto-hosteada'),
-        });
-        window._settings.bind('self-hosted-url', this._selfHostedRow, 'text', Gio.SettingsBindFlags.DEFAULT);
-        translationGroup.add(this._selfHostedRow);
-
-        const currentProv = providers.find(p => p.id === currentProvider);
-        this._updateVisibility(window, currentProv || providers[0]);
-
-        const limitsGroup = new Adw.PreferencesGroup({
-            title: _('Límites'),
-            description: _('Límites de uso del traductor'),
-        });
-        page.add(limitsGroup);
-
-        const maxLenRow = new Adw.SpinRow({
-            title: _('Máximo de caracteres'),
-            subtitle: _('Límite de texto para traducir'),
-            adjustment: new Gtk.Adjustment({
-                lower: 100,
-                upper: 50000,
-                step_increment: 100,
-                page_increment: 1000,
-            }),
-        });
-        window._settings.bind('max-text-length', maxLenRow, 'value', Gio.SettingsBindFlags.DEFAULT);
-        limitsGroup.add(maxLenRow);
-
-        const timeoutRow = new Adw.SpinRow({
-            title: _('Timeout (ms)'),
-            subtitle: _('Tiempo máximo de espera del proveedor'),
-            adjustment: new Gtk.Adjustment({
-                lower: 1000,
-                upper: 60000,
-                step_increment: 1000,
-                page_increment: 5000,
-            }),
-        });
-        window._settings.bind('provider-timeout', timeoutRow, 'value', Gio.SettingsBindFlags.DEFAULT);
-        limitsGroup.add(timeoutRow);
-    }
-
-    _updateVisibility(window, provider) {
-        this._apiKeyRow.visible = provider.needsKey;
-        this._selfHostedRow.visible = provider.id === 'libretranslate';
     }
 
     _addAppearancePage(window) {
