@@ -2,6 +2,7 @@ import Adw from 'gi://Adw';
 import Gtk from 'gi://Gtk?version=4.0';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
+import Gdk from 'gi://Gdk?version=4.0';
 
 import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 import {LANGUAGES, getLanguageCodes} from './utils/languages.js';
@@ -105,41 +106,83 @@ export default class NeoTraductorPreferences extends ExtensionPreferences {
         indicatorGroup.add(colorRow);
 
         const styleGroup = new Adw.PreferencesGroup({
-            title: _('Estilos avanzados'),
-            description: _('Personaliza colores de fondo y transparencia de los elementos. Usa nombres (default, dark) o códigos hex (#rrggbb)'),
+            title: _('Estilos de fondo'),
+            description: _('Personaliza colores y transparencia de los elementos'),
         });
         page.add(styleGroup);
 
-        const menuBgRow = new Adw.EntryRow({
-            title: _('Fondo del menú'),
-        });
-        window._settings.bind('menu-bg-color', menuBgRow, 'text', Gio.SettingsBindFlags.DEFAULT);
-        styleGroup.add(menuBgRow);
+        this._createColorRow(window, styleGroup, 'menu-bg-color', _('Fondo del menú'));
+        this._createColorRow(window, styleGroup, 'result-bg-color', _('Fondo del resultado'));
+        this._createColorRow(window, styleGroup, 'input-bg-color', _('Fondo del campo de texto'));
+        this._createOpacityRow(window, styleGroup);
+    }
 
-        const resultBgRow = new Adw.EntryRow({
-            title: _('Fondo del resultado'),
-        });
-        window._settings.bind('result-bg-color', resultBgRow, 'text', Gio.SettingsBindFlags.DEFAULT);
-        styleGroup.add(resultBgRow);
+    _createColorRow(window, group, settingKey, title) {
+        const row = new Adw.ActionRow({ title });
 
-        const inputBgRow = new Adw.EntryRow({
-            title: _('Fondo del campo de texto'),
-        });
-        window._settings.bind('input-bg-color', inputBgRow, 'text', Gio.SettingsBindFlags.DEFAULT);
-        styleGroup.add(inputBgRow);
+        const currentColor = window._settings.get_string(settingKey);
+        const rgba = new Gdk.RGBA();
+        if (currentColor.startsWith('#')) {
+            rgba.parse(currentColor);
+        } else {
+            rgba.parse('#353535');
+        }
 
-        const opacityRow = new Adw.SpinRow({
-            title: _('Opacidad del menú'),
-            subtitle: _('0.0 (transparente) a 1.0 (sólido)'),
-            adjustment: new Gtk.Adjustment({
-                lower: 0.0,
-                upper: 1.0,
-                step_increment: 0.05,
-                page_increment: 0.1,
-            }),
+        const colorBtn = new Gtk.ColorButton({ rgba });
+        colorBtn.connect('notify::rgba', () => {
+            const c = colorBtn.get_rgba();
+            const hex = '#%02x%02x%02x'.format(
+                Math.round(c.red * 255),
+                Math.round(c.green * 255),
+                Math.round(c.blue * 255)
+            );
+            window._settings.set_string(settingKey, hex);
         });
-        window._settings.bind('menu-opacity', opacityRow, 'value', Gio.SettingsBindFlags.DEFAULT);
-        styleGroup.add(opacityRow);
+        row.add_suffix(colorBtn);
+
+        const resetBtn = new Gtk.Button({
+            label: _('Default'),
+            css_classes: ['flat'],
+            tooltip_text: _('Restablecer a valor por defecto'),
+        });
+        resetBtn.connect('clicked', () => {
+            window._settings.set_string(settingKey, 'default');
+            const d = new Gdk.RGBA();
+            d.parse('#353535');
+            colorBtn.set_rgba(d);
+        });
+        row.add_suffix(resetBtn);
+
+        group.add(row);
+    }
+
+    _createOpacityRow(window, group) {
+        const row = new Adw.ActionRow({
+            title: _('Opacidad general'),
+        });
+
+        const adj = new Gtk.Adjustment({
+            value: window._settings.get_double('menu-opacity'),
+            lower: 0.0,
+            upper: 1.0,
+            step_increment: 0.05,
+        });
+
+        const scale = new Gtk.Scale({
+            orientation: Gtk.Orientation.HORIZONTAL,
+            adjustment: adj,
+            draw_value: true,
+            digits: 2,
+            width_request: 160,
+            hexpand: true,
+        });
+
+        adj.connect('value-changed', () => {
+            window._settings.set_double('menu-opacity', adj.get_value());
+        });
+
+        row.add_suffix(scale);
+        group.add(row);
     }
 
     _updateIndicatorFieldsVisibility(window) {
