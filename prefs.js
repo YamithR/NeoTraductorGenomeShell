@@ -143,14 +143,12 @@ export default class NeoTraductorPreferences extends ExtensionPreferences {
 
         this._iconNameRow = new Adw.EntryRow({
             title: _('Nombre del ícono'),
-            subtitle: _('Ej: edit-find-symbolic, face-laugh-symbolic, accessories-dictionary-symbolic'),
         });
         window._settings.bind('indicator-icon', this._iconNameRow, 'text', Gio.SettingsBindFlags.DEFAULT);
         indicatorGroup.add(this._iconNameRow);
 
         this._indicatorTextRow = new Adw.EntryRow({
             title: _('Texto del indicador'),
-            subtitle: _('Texto a mostrar (ej: T, N, TR)'),
         });
         window._settings.bind('indicator-text', this._indicatorTextRow, 'text', Gio.SettingsBindFlags.DEFAULT);
         indicatorGroup.add(this._indicatorTextRow);
