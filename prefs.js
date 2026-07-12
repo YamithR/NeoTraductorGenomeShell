@@ -52,7 +52,6 @@ export default class NeoTraductorPreferences extends ExtensionPreferences {
 
         this._apiKeyRow = new Adw.EntryRow({
             title: _('API Key'),
-            subtitle: _('Clave de API para servicios que lo requieran'),
         });
         window._settings.bind('api-key', this._apiKeyRow, 'text', Gio.SettingsBindFlags.DEFAULT);
         const currentProv = providers.find(p => p.id === currentProvider);
@@ -61,7 +60,6 @@ export default class NeoTraductorPreferences extends ExtensionPreferences {
 
         this._selfHostedRow = new Adw.EntryRow({
             title: _('URL auto-hosteada'),
-            subtitle: _('URL de tu propio servidor LibreTranslate (opcional)'),
         });
         window._settings.bind('self-hosted-url', this._selfHostedRow, 'text', Gio.SettingsBindFlags.DEFAULT);
         translationGroup.add(this._selfHostedRow);
@@ -274,7 +272,6 @@ export default class NeoTraductorPreferences extends ExtensionPreferences {
 
         const shortcutRow = new Adw.EntryRow({
             title: _('Atajo global'),
-            subtitle: _('Tecla para abrir el traductor (ej: <Super>t)'),
         });
         window._settings.bind('shortcut-key', shortcutRow, 'text', Gio.SettingsBindFlags.DEFAULT);
         shortcutsGroup.add(shortcutRow);
