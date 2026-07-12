@@ -2,6 +2,11 @@ import Soup from 'gi://Soup?version=3.0';
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
 
+function _makeMessage(method, url) {
+    const uri = GLib.Uri.parse(url, GLib.UriFlags.NONE);
+    return new Soup.Message({ method, uri });
+}
+
 const PROVIDERS = {
     apertium: {
         name: 'Apertium',
@@ -9,8 +14,8 @@ const PROVIDERS = {
         translate: async (text, source, target, _apiKey, timeout) => {
             const session = new Soup.Session();
             const langpair = `${source || 'auto'}|${target}`;
-            const uri = `https://apertium.org/apy/translate?q=${encodeURIComponent(text)}&langpair=${encodeURIComponent(langpair)}&format=json&markUnknown=no`;
-            const message = new Soup.Message({ method: 'GET', uri });
+            const url = `https://apertium.org/apy/translate?q=${encodeURIComponent(text)}&langpair=${encodeURIComponent(langpair)}&format=json&markUnknown=no`;
+            const message = _makeMessage('GET', url);
             return await _sendRequest(session, message, timeout);
         },
         parseResponse: (data) => {
@@ -20,7 +25,7 @@ const PROVIDERS = {
                     return json.responseData.translatedText;
                 if (json.translatedText)
                     return json.translatedText;
-                return json.responseStatus === 200 ? '' : null;
+                return null;
             } catch {
                 return null;
             }
@@ -39,10 +44,7 @@ const PROVIDERS = {
                 format: 'text',
             };
             if (apiKey) payload.api_key = apiKey;
-            const message = new Soup.Message({
-                method: 'POST',
-                uri: `${baseUrl}/translate`,
-            });
+            const message = _makeMessage('POST', `${baseUrl}/translate`);
             message.get_request_headers().append('Content-Type', 'application/json');
             message.set_request_body_from_bytes(
                 'application/json',
@@ -77,8 +79,8 @@ const PROVIDERS = {
                 .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
                 .join('&');
             const free = apiKey.endsWith(':fx') ? '-free' : '';
-            const uri = `https://api${free}.deepl.com/v2/translate`;
-            const message = new Soup.Message({ method: 'POST', uri });
+            const url = `https://api${free}.deepl.com/v2/translate`;
+            const message = _makeMessage('POST', url);
             message.get_request_headers().append('Content-Type', 'application/x-www-form-urlencoded');
             message.get_request_headers().append('Authorization', `DeepL-Auth-Key ${apiKey}`);
             message.set_request_body_from_bytes(
@@ -114,8 +116,8 @@ const PROVIDERS = {
             const encoded = Object.entries(params)
                 .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
                 .join('&');
-            const uri = `${baseUrl}?${encoded}`;
-            const message = new Soup.Message({ method: 'GET', uri });
+            const url = `${baseUrl}?${encoded}`;
+            const message = _makeMessage('GET', url);
             return await _sendRequest(session, message, timeout);
         },
         parseResponse: (data) => {

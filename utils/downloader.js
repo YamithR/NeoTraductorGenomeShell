@@ -4,11 +4,27 @@ import Gio from 'gi://Gio';
 
 const LANGUAGE_PACKS_URL = 'https://raw.githubusercontent.com/YamithR/NeoTraductorGenomeShell/main/language-packs.json';
 
+function _makeMessage(method, url) {
+    const uri = GLib.Uri.parse(url, GLib.UriFlags.NONE);
+    return new Soup.Message({ method, uri });
+}
+
 export async function fetchAvailableLanguagePacks(timeout = 10000) {
     const session = new Soup.Session();
-    const message = new Soup.Message({ method: 'GET', uri: LANGUAGE_PACKS_URL });
+    const message = _makeMessage('GET', LANGUAGE_PACKS_URL);
     return new Promise((resolve, reject) => {
-        session.send_and_read_async(message, GLib.PRIORITY_DEFAULT, null, (src, res) => {
+        const cancellable = Gio.Cancellable.new();
+        let timeoutId = 0;
+        timeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, timeout, () => {
+            cancellable.cancel();
+            resolve([]);
+            return GLib.SOURCE_REMOVE;
+        });
+        session.send_and_read_async(message, GLib.PRIORITY_DEFAULT, cancellable, (src, res) => {
+            if (timeoutId > 0) {
+                GLib.source_remove(timeoutId);
+                timeoutId = 0;
+            }
             try {
                 const status = message.get_status();
                 if (status !== Soup.Status.OK) {
@@ -31,9 +47,20 @@ export async function downloadLanguagePack(langCode, extensionDir, onProgress, t
     const localeDir = `${extensionDir}/locale/${langCode}/LC_MESSAGES`;
     const poUrl = `https://raw.githubusercontent.com/YamithR/NeoTraductorGenomeShell/main/locale/${langCode}/LC_MESSAGES/neotraductor.po`;
     const session = new Soup.Session();
-    const message = new Soup.Message({ method: 'GET', uri: poUrl });
+    const message = _makeMessage('GET', poUrl);
     return new Promise((resolve, reject) => {
-        session.send_and_read_async(message, GLib.PRIORITY_DEFAULT, null, async (src, res) => {
+        const cancellable = Gio.Cancellable.new();
+        let timeoutId = 0;
+        timeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, timeout, () => {
+            cancellable.cancel();
+            reject(new Error('Tiempo de espera agotado'));
+            return GLib.SOURCE_REMOVE;
+        });
+        session.send_and_read_async(message, GLib.PRIORITY_DEFAULT, cancellable, async (src, res) => {
+            if (timeoutId > 0) {
+                GLib.source_remove(timeoutId);
+                timeoutId = 0;
+            }
             try {
                 const status = message.get_status();
                 if (status !== Soup.Status.OK) {
