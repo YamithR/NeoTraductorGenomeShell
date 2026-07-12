@@ -437,25 +437,29 @@ export default class NeoTraductorExtension extends Extension {
     }
 
     _registerShortcut() {
-        const shortcut = this._settings.get_string('shortcut-key');
-        if (shortcut) {
-            this._shortcutId = Main.wm.addKeybinding(
-                this.uuid,
-                this._settings,
-                Meta.KeyBindingFlags.NONE,
-                Shell.ActionMode.NORMAL,
-                () => {
-                    if (this._indicator) {
-                        this._indicator.menu.open();
+        try {
+            const shortcut = this._settings.get_strv('shortcut-key');
+            if (shortcut && shortcut.length > 0) {
+                this._shortcutId = Main.wm.addKeybinding(
+                    'shortcut-key',
+                    this._settings,
+                    Meta.KeyBindingFlags.NONE,
+                    Shell.ActionMode.NORMAL,
+                    () => {
+                        if (this._indicator) {
+                            this._indicator.menu.open();
+                        }
                     }
-                }
-            );
+                );
+            }
+        } catch (e) {
+            console.warn(`NeoTraductor: Error registrando atajo: ${e}`);
         }
     }
 
     _unregisterShortcut() {
         if (this._shortcutId) {
-            Main.wm.removeKeybinding(this.uuid);
+            Main.wm.removeKeybinding('shortcut-key');
             this._shortcutId = null;
         }
     }

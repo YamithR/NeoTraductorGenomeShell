@@ -141,11 +141,22 @@ export default class NeoTraductorPreferences extends ExtensionPreferences {
         });
         indicatorGroup.add(styleRow);
 
-        this._iconNameRow = new Adw.EntryRow({
-            title: _('Nombre del ícono'),
+        this._iconRow = new Adw.ActionRow({
+            title: _('Ícono'),
+            subtitle: _('Selecciona un ícono para el indicador'),
         });
-        window._settings.bind('indicator-icon', this._iconNameRow, 'text', Gio.SettingsBindFlags.DEFAULT);
-        indicatorGroup.add(this._iconNameRow);
+        this._iconPreview = Gtk.Image.new_from_icon_name(
+            window._settings.get_string('indicator-icon')
+        );
+        this._iconPreview.set_pixel_size(24);
+        this._iconRow.add_suffix(this._iconPreview);
+        const iconBtn = new Gtk.Button({
+            label: _('Seleccionar…'),
+            css_classes: ['flat'],
+        });
+        iconBtn.connect('clicked', () => this._showIconPicker(window));
+        this._iconRow.add_suffix(iconBtn);
+        indicatorGroup.add(this._iconRow);
 
         this._indicatorTextRow = new Adw.EntryRow({
             title: _('Texto del indicador'),
@@ -221,8 +232,119 @@ export default class NeoTraductorPreferences extends ExtensionPreferences {
 
     _updateIndicatorFieldsVisibility(window) {
         const style = window._settings.get_string('indicator-style');
-        this._iconNameRow.visible = style === 'icon';
+        this._iconRow.visible = style === 'icon';
+        this._iconRow.subtitle = style === 'icon' ? _('Selecciona un ícono') : '';
         this._indicatorTextRow.visible = style === 'text';
+    }
+
+    _showIconPicker(window) {
+        const ICONS = [
+            ['edit-find-symbolic', '🔍', _('Lupa')],
+            ['face-laugh-symbolic', '😀', _('Sonrisa')],
+            ['accessories-dictionary-symbolic', '📖', _('Diccionario')],
+            ['emblem-system-symbolic', '⚙️', _('Sistema')],
+            ['input-keyboard-symbolic', '⌨️', _('Teclado')],
+            ['network-server-symbolic', '🌐', _('Red')],
+            ['emblem-documents-symbolic', '📄', _('Documentos')],
+            ['edit-copy-symbolic', '📋', _('Copiar')],
+            ['view-refresh-symbolic', '🔄', _('Actualizar')],
+            ['preferences-desktop-locale-symbolic', '🌍', _('Idioma')],
+            ['starred-symbolic', '⭐', _('Favorito')],
+            ['dialog-information-symbolic', 'ℹ️', _('Info')],
+            ['help-contents-symbolic', '❓', _('Ayuda')],
+            ['computer-symbolic', '💻', _('PC')],
+            ['user-available-symbolic', '👤', _('Usuario')],
+            ['weather-clear-night-symbolic', '🌙', _('Luna')],
+            ['applications-engineering-symbolic', '🔧', _('Tools')],
+            ['preferences-desktop-symbolic', '🖥️', _('Escritorio')],
+            ['document-edit-symbolic', '✏️', _('Editar')],
+            ['folder-symbolic', '📁', _('Carpeta')],
+            ['emblem-photos-symbolic', '🖼️', _('Fotos')],
+            ['emblem-music-symbolic', '🎵', _('Música')],
+            ['emblem-videos-symbolic', '🎬', _('Vídeo')],
+            ['emblem-downloads-symbolic', '⬇️', _('Descargas')],
+            ['call-start-symbolic', '📞', _('Teléfono')],
+            ['mail-unread-symbolic', '✉️', _('Correo')],
+            ['browser-symbolic', '🌐', _('Navegador')],
+        ];
+
+        const currentIcon = window._settings.get_string('indicator-icon');
+
+        const dialog = new Adw.MessageDialog({
+            transient_for: window,
+            heading: _('Seleccionar ícono'),
+            close_response: 'cancel',
+        });
+        dialog.add_response('cancel', _('Cerrar'));
+
+        const scrolled = new Gtk.ScrolledWindow({
+            hscrollbar_policy: Gtk.PolicyType.NEVER,
+            vscrollbar_policy: Gtk.PolicyType.AUTOMATIC,
+            min_content_height: 350,
+            max_content_height: 450,
+        });
+
+        const flowBox = new Gtk.FlowBox({
+            max_children_per_line: 4,
+            min_children_per_line: 3,
+            selection_mode: Gtk.SelectionMode.NONE,
+            column_spacing: 6,
+            row_spacing: 6,
+            margin_start: 12,
+            margin_end: 12,
+            margin_top: 12,
+            margin_bottom: 12,
+            halign: Gtk.Align.CENTER,
+        });
+
+        ICONS.forEach(([iconName, emoji, label]) => {
+            const box = new Gtk.Box({
+                orientation: Gtk.Orientation.VERTICAL,
+                spacing: 4,
+                halign: Gtk.Align.CENTER,
+            });
+
+            const img = Gtk.Image.new_from_icon_name(iconName);
+            img.set_pixel_size(32);
+
+            const isSelected = iconName === currentIcon;
+            const btn = new Gtk.ToggleButton({
+                active: isSelected,
+                child: img,
+                tooltip_text: `${label} (${iconName})`,
+                css_classes: isSelected ? ['suggested-action'] : [],
+            });
+            btn.connect('clicked', () => {
+                window._settings.set_string('indicator-icon', iconName);
+                this._iconPreview.set_from_icon_name(iconName);
+                dialog.close();
+            });
+
+            const nameLabel = new Gtk.Label({
+                label,
+                css_classes: ['caption'],
+                lines: 1,
+                ellipsize: 3,
+            });
+
+            const codeLabel = new Gtk.Label({
+                label: iconName,
+                css_classes: ['caption', 'dim-label'],
+                lines: 1,
+                ellipsize: 3,
+            });
+
+            box.append(btn);
+            box.append(nameLabel);
+            box.append(codeLabel);
+
+            const child = new Gtk.FlowBoxChild({ child: box });
+            flowBox.append(child);
+        });
+
+        scrolled.set_child(flowBox);
+        dialog.set_extra_child(scrolled);
+        dialog.present();
     }
 
     _addLanguagesPage(window) {
@@ -387,7 +509,12 @@ export default class NeoTraductorPreferences extends ExtensionPreferences {
         const shortcutRow = new Adw.EntryRow({
             title: _('Atajo global'),
         });
-        window._settings.bind('shortcut-key', shortcutRow, 'text', Gio.SettingsBindFlags.DEFAULT);
+        const accels = window._settings.get_strv('shortcut-key');
+        shortcutRow.set_text(accels.join(', '));
+        shortcutRow.connect('notify::text', row => {
+            const text = row.get_text().trim();
+            window._settings.set_strv('shortcut-key', text ? [text] : []);
+        });
         shortcutsGroup.add(shortcutRow);
 
         const behaviorGroup = new Adw.PreferencesGroup({

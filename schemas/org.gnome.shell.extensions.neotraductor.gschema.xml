@@ -63,8 +63,8 @@
       <description>Copiar automáticamente la traducción al portapapeles</description>
     </key>
 
-    <key name="shortcut-key" type="s">
-      <default>'&lt;Super&gt;t'</default>
+    <key name="shortcut-key" type="as">
+      <default>['&lt;Super&gt;t']</default>
       <summary>Atajo de teclado</summary>
       <description>Atajo global para abrir el traductor</description>
     </key>
