@@ -384,6 +384,16 @@ export default class NeoTraductorExtension extends Extension {
         });
     }
 
+    _updateLangComboLabel(settingKey) {
+        const code = this._settings.get_string(settingKey);
+        const info = LANGUAGES[code];
+        if (!info) return;
+        const combo = settingKey === 'source-lang' ? this._sourceLangCombo : this._targetLangCombo;
+        if (combo) {
+            combo.item.label.text = `${info.flag} ${info.native}`;
+        }
+    }
+
     _connectSettings() {
         this._settingsChangedIds = [];
         this._settingsChangedIds.push(
@@ -416,6 +426,11 @@ export default class NeoTraductorExtension extends Extension {
                 }
             })
         );
+        ['source-lang', 'target-lang'].forEach(key => {
+            this._settingsChangedIds.push(
+                this._settings.connect(`changed::${key}`, () => this._updateLangComboLabel(key))
+            );
+        });
         ['menu-bg-color', 'menu-opacity', 'result-bg-color', 'input-bg-color'].forEach(key => {
             this._settingsChangedIds.push(
                 this._settings.connect(`changed::${key}`, () => this._updateDynamicStyles())
