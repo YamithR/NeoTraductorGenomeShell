@@ -1,17 +1,19 @@
 # NeoTraductor GNOME Shell
 
-Extensión de traducción multilingüe para GNOME Shell 45+ con soporte para Apertium, LibreTranslate, DeepL y Google Translate. Interfaz personalizable, historial y paquetes de idiomas descargables.
+Extensión de traducción multilingüe para GNOME Shell 45+ con **Google Translate** (endpoint gratuito, sin API Key). Interfaz personalizable con selector visual de colores, historial y paquetes de idiomas descargables.
 
 ## Características
 
-- **Múltiples proveedores**: Apertium, LibreTranslate, DeepL y Google Translate
-- **Interfaz personalizable**: Botón tipo texto o icono, colores, posición en el panel
+- **Google Translate** integrado — sin API Key, sin configuración
 - **80+ idiomas** con detección automática
 - **Historial** de traducciones recientes
 - **Auto-copiar** al portapapeles
 - **Atajo de teclado** global configurable (`Super+T`)
+- **Selector visual de colores** (`Gtk.ColorButton`) para fondo del menú, resultado y campo de texto
+- **Slider de opacidad** (`Gtk.Scale`) para el menú
+- **Selector de ícono** visual con FlowBox (27 iconos GNOME)
 - **Paquetes de idiomas** descargables para la interfaz
-- **Preferencias** con interfaz Adwaita moderna
+- **Preferencias** con interfaz Adwaita moderna (3 páginas: Apariencia, Idiomas, Avanzado)
 
 ## Instalación
 
@@ -37,7 +39,7 @@ cd ~/.local/share/gnome-shell/extensions/neotraductor@yamithr.dev
 glib-compile-schemas schemas/
 ```
 
-**Nota**: Si usas el enlace simbólico, cualquier cambio que hagas en el repositorio se reflejará automáticamente. Solo necesitas reiniciar GNOME Shell.
+> Nota: Con el enlace simbólico, cualquier cambio en el repositorio se refleja automáticamente. Solo necesitas reiniciar GNOME Shell.
 
 ### Instalación directa (copia)
 
@@ -57,7 +59,7 @@ cp -r . ~/.local/share/gnome-shell/extensions/neotraductor@yamithr.dev/
 
 ## Uso
 
-1. Haz clic en el icono 🔍 (lupa) del traductor en el panel superior
+1. Haz clic en el icono del traductor en el panel superior
 2. Selecciona idioma origen (o "Detectar") y destino
 3. Escribe el texto y presiona **Enter** o haz clic en **"Traducir"**
 4. El resultado aparece debajo; haz clic en el texto para copiarlo
@@ -68,22 +70,16 @@ cp -r . ~/.local/share/gnome-shell/extensions/neotraductor@yamithr.dev/
 
 `Super + T` abre el traductor desde cualquier lugar. Configurable en Preferencias → Avanzado.
 
-## Proveedores de traducción
+## Traducción
 
-| Proveedor | ¿Requiere API Key? | Notas |
-|-----------|--------------------|-------|
-| **LibreTranslate** | No | Predeterminado. 30+ idiomas. Usa `libretranslate.com` o tu propio servidor |
-| **Apertium** | No | 50+ idiomas. Gratuito, open source |
-| **DeepL** | Sí | 500k caracteres/mes gratis. [Obtén tu key](https://www.deepl.com/pro-api) |
-| **Google Translate** | Sí | Pago por uso. Requiere API key de Google Cloud |
-
-**📌 LibreTranslate** funciona sin configuración adicional. Si quieres usar tu propio servidor, configura la URL en Preferencias → General → URL auto-hosteada.
+La extensión usa exclusivamente el endpoint gratuito de Google Translate (`translate.googleapis.com/translate_a/single`). No requiere API Key, registro ni configuración adicional.
 
 ## Paquetes de idiomas
 
 La interfaz de NeoTraductor puede traducirse a varios idiomas. Ve a **Preferencias → Idiomas → Gestionar paquetes** para instalar o eliminar paquetes disponibles.
 
 Paquetes disponibles actualmente:
+
 | Código | Idioma |
 |--------|--------|
 | ca | Català |
@@ -102,13 +98,31 @@ Si quieres contribuir con un nuevo paquete, traduce el archivo `locale/es/LC_MES
 
 ## Personalización
 
-### Básica (Preferencias)
-- **General**: Proveedor, API Key, URL auto-hosteada, límites
-- **Apariencia**: Mostrar/ocultar botón, estilo icono/texto, color
-- **Idiomas**: Par origen/destino predeterminado, paquetes de idiomas
-- **Avanzado**: Atajo de teclado, auto-copiar, historial
+### Apariencia (Preferencias)
+
+- **Mostrar/ocultar** botón en el panel
+- **Estilo**: icono simbólico o texto personalizado
+- **Color del botón**: 6 colores predefinidos (rojo, verde, azul, naranja, púrpura)
+- **Selector de icono**: diálogo visual con 27 iconos GNOME
+- **Fondo del menú**: selector de color (`Gtk.ColorButton`) + botón "Default"
+- **Fondo del resultado**: selector de color + botón "Default"
+- **Fondo del campo de texto**: selector de color + botón "Default"
+- **Opacidad del menú**: slider horizontal de 0.0 a 1.0
+
+### Idiomas (Preferencias)
+
+- **Idioma origen** predeterminado
+- **Idioma destino** predeterminado
+- **Gestión de paquetes** de idiomas disponibles
+
+### Avanzado (Preferencias)
+
+- **Atajo de teclado** global
+- **Auto-copiar** al portapapeles
+- **Tamaño del historial** (0 = desactivado)
 
 ### Avanzada (CSS)
+
 Edita `stylesheet.css` en el directorio de la extensión:
 
 ```
@@ -118,22 +132,49 @@ Edita `stylesheet.css` en el directorio de la extensión:
 ## Solución de problemas
 
 ### El botón no aparece en el panel
+
 - Ve a Preferencias → Apariencia → "Mostrar indicador"
 - Reinicia GNOME Shell
 
+### Error 400 / "Bad Request" al traducir
+
+- Verifica tu conexión a internet
+- Google Translate puede bloquear peticiones sin User-Agent de navegador (ya incluido en el código)
+- Si persiste, espera unos minutos y reintenta
+
 ### Error al traducir
-- Abre Preferencias y verifica que el proveedor esté bien configurado
-- Prueba cambiar a Apertium o LibreTranslate
+
 - Revisa tu conexión a internet
+- Comprueba que el texto no exceda el límite de caracteres (configurable en el esquema)
 
 ### No se abren las preferencias
+
 ```bash
 journalctl -f -o cat /usr/bin/gjs
 ```
 
 ## Desarrollo
 
+### Estructura del proyecto
+
+```
+neotraductor@yamithr.dev/
+├── extension.js          # Lógica principal de la extensión
+├── prefs.js              # Interfaz de preferencias (Adw)
+├── metadata.json         # Metadatos de la extensión
+├── stylesheet.css        # Estilos CSS
+├── schemas/              # Esquemas GSettings
+│   ├── gschemas.compiled
+│   └── org.gnome.shell.extensions.neotraductor.gschema.xml
+├── utils/
+│   ├── translator.js     # Cliente Google Translate (gratuito)
+│   ├── languages.js      # 80+ idiomas con banderas
+│   └── downloader.js     # Descarga de paquetes de idiomas
+└── locale/               # Traducciones de la interfaz
+```
+
 ### Empaquetar para extensions.gnome.org
+
 ```bash
 gnome-extensions pack \
   --extra-source=utils/ \
