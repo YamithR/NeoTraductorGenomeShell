@@ -2,10 +2,7 @@ import Soup from 'gi://Soup?version=3.0';
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
 
-function _makeMessage(method, url) {
-    const uri = GLib.Uri.parse(url, GLib.UriFlags.NONE);
-    return new Soup.Message({ method, uri });
-}
+const USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
 function _sendRequest(session, message, timeout = 10000) {
     return new Promise((resolve, reject) => {
@@ -24,13 +21,12 @@ function _sendRequest(session, message, timeout = 10000) {
             try {
                 const status = message.get_status();
                 if (status !== Soup.Status.OK) {
-                    const reason = message.get_reason_phrase() || '';
                     let body = '';
                     try {
                         const bytes = src.send_and_read_finish(res);
                         body = new TextDecoder('utf-8').decode(bytes.get_data());
                     } catch {}
-                    reject(new Error(body || `Error HTTP ${status}${reason ? ': ' + reason : ''}`));
+                    reject(new Error(body || `Error HTTP ${status}`));
                     return;
                 }
                 const bytes = src.send_and_read_finish(res);
@@ -61,9 +57,10 @@ function _parseGoogleResponse(data) {
 
 export async function translateText(text, source, target, timeout = 10000) {
     const session = new Soup.Session();
+    session.set_user_agent(USER_AGENT);
     const sl = source || 'auto';
     const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${encodeURIComponent(sl)}&tl=${encodeURIComponent(target)}&dt=t&q=${encodeURIComponent(text)}&ie=UTF-8&oe=UTF-8`;
-    const message = _makeMessage('GET', url);
+    const message = Soup.Message.new('GET', url);
     const raw = await _sendRequest(session, message, timeout);
     return _parseGoogleResponse(raw);
 }
