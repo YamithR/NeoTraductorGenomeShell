@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NeoTraductor</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="window-bar" id="windowBar">
+    <span class="window-title">NeoTraductor</span>
+    <span class="window-close" id="closeBtn">&times;</span>
+  </div>
+
+  <div class="translator-container">
+    <div class="lang-row">
+      <select id="sourceLang"></select>
+      <button id="swapBtn" class="swap-btn" title="Intercambiar idiomas">⇄</button>
+      <select id="targetLang"></select>
+    </div>
+
+    <textarea id="textInput" placeholder="Escribe texto para traducir..." rows="3"></textarea>
+
+    <button id="translateBtn">Traducir</button>
+
+    <div id="resultArea" class="result-box hidden">
+      <div id="resultText" class="result-label"></div>
+      <div class="action-row">
+        <button id="copyBtn" class="action-btn">📋 Copiar</button>
+        <button id="swapLangBtn" class="action-btn">🔄 Intercambiar</button>
+        <button id="clearBtn" class="action-btn">🗑️ Limpiar</button>
+      </div>
+    </div>
+
+    <div id="loadingIndicator" class="loading hidden">Traduciendo...</div>
+    <div id="errorMsg" class="error hidden"></div>
+
+    <div class="history-section">
+      <div class="history-title">Historial</div>
+      <div id="historyList" class="history-list"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,241 @@
+const { app, BrowserWindow, Tray, Menu, globalShortcut, nativeImage, ipcMain, screen } = require('electron');
+const path = require('path');
+const fs = require('fs');
+
+if (process.platform === 'win32') {
+  app.setAppUserModelId('com.yamithr.neotraductor');
+}
+
+const CONFIG_PATH = path.join(app.getPath('userData'), 'config.json');
+const HISTORY_PATH = path.join(app.getPath('userData'), 'history.json');
+
+let mainWindow = null;
+let tray = null;
+let config = {};
+let history = [];
+let isQuitting = false;
+
+function loadConfig() {
+  try {
+    if (fs.existsSync(CONFIG_PATH)) {
+      config = JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf-8'));
+    }
+  } catch {}
+  const defaults = {
+    'source-lang': 'auto',
+    'target-lang': 'en',
+    'auto-clipboard': false,
+    'shortcut-key': 'Ctrl+Shift+T',
+    'history-size': 10,
+    'max-text-length': 5000,
+    'menu-bg-color': 'default',
+    'menu-opacity': 1.0,
+    'result-bg-color': 'default',
+    'input-bg-color': 'default',
+    'window-width': 380,
+    'window-height': 520,
+    'always-on-top': true
+  };
+  for (const [key, val] of Object.entries(defaults)) {
+    if (config[key] === undefined) config[key] = val;
+  }
+  return config;
+}
+
+function saveConfig() {
+  try {
+    fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), 'utf-8');
+  } catch (e) {
+    console.error('Error saving config:', e);
+  }
+}
+
+function loadHistory() {
+  try {
+    if (fs.existsSync(HISTORY_PATH)) {
+      history = JSON.parse(fs.readFileSync(HISTORY_PATH, 'utf-8'));
+    }
+  } catch {
+    history = [];
+  }
+}
+
+function saveHistory() {
+  try {
+    const maxSize = config['history-size'] || 10;
+    if (history.length > maxSize) history = history.slice(0, maxSize);
+    fs.writeFileSync(HISTORY_PATH, JSON.stringify(history, null, 2), 'utf-8');
+  } catch (e) {
+    console.error('Error saving history:', e);
+  }
+}
+
+function createWindow() {
+  const workArea = screen.getPrimaryDisplay().workAreaSize;
+  const winWidth = config['window-width'] || 380;
+  const winHeight = config['window-height'] || 520;
+
+  mainWindow = new BrowserWindow({
+    width: winWidth,
+    height: winHeight,
+    x: workArea.width - winWidth - 20,
+    y: 60,
+    frame: false,
+    transparent: true,
+    resizable: false,
+    skipTaskbar: true,
+    alwaysOnTop: config['always-on-top'] !== false,
+    show: false,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      nodeIntegration: false,
+      contextIsolation: true
+    }
+  });
+
+  mainWindow.loadFile(path.join(__dirname, 'renderer', 'index.html'));
+
+  mainWindow.on('blur', () => {
+    if (!mainWindow?.isFocused()) {
+      mainWindow?.hide();
+    }
+  });
+
+  mainWindow.on('close', (e) => {
+    if (!isQuitting) {
+      e.preventDefault();
+      mainWindow?.hide();
+    }
+  });
+
+  mainWindow.on('closed', () => {
+    mainWindow = null;
+  });
+}
+
+function showWindow() {
+  if (!mainWindow) createWindow();
+  if (mainWindow.isVisible()) {
+    mainWindow.hide();
+    return;
+  }
+  const workArea = screen.getPrimaryDisplay().workAreaSize;
+  const winWidth = config['window-width'] || 380;
+  mainWindow.setPosition(workArea.width - winWidth - 20, 60);
+  mainWindow.show();
+  mainWindow.focus();
+  mainWindow.webContents.send('focus-input');
+}
+
+function createTray() {
+  const iconPath = path.join(__dirname, 'assets', 'tray-icon.png');
+  let trayIcon;
+  try {
+    trayIcon = nativeImage.createFromPath(iconPath);
+    if (trayIcon.isEmpty()) {
+      trayIcon = nativeImage.createEmpty();
+    }
+  } catch {
+    trayIcon = nativeImage.createEmpty();
+  }
+
+  tray = new Tray(trayIcon);
+  tray.setToolTip('NeoTraductor');
+
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Mostrar/Ocultar',
+      click: () => showWindow()
+    },
+    { type: 'separator' },
+    {
+      label: 'Salir',
+      click: () => {
+        isQuitting = true;
+        app.quit();
+      }
+    }
+  ]);
+
+  tray.setContextMenu(contextMenu);
+  tray.on('click', () => showWindow());
+}
+
+function registerShortcuts() {
+  const shortcut = config['shortcut-key'] || 'Ctrl+Shift+T';
+  globalShortcut.unregisterAll();
+
+  const registered = globalShortcut.register(shortcut, () => {
+    showWindow();
+  });
+
+  if (!registered) {
+    console.warn(`Failed to register shortcut: ${shortcut}`);
+  }
+}
+
+ipcMain.handle('translate', async (event, { text, source, target }) => {
+  const { translateText } = require('./utils/translator.js');
+  try {
+    const result = await translateText(text, source, target, 10000);
+    return { success: true, data: result };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+ipcMain.handle('get-config', () => config);
+
+ipcMain.handle('set-config', (event, updates) => {
+  Object.assign(config, updates);
+  saveConfig();
+  if (updates['shortcut-key']) registerShortcuts();
+  if (updates['always-on-top'] !== undefined && mainWindow) {
+    mainWindow.setAlwaysOnTop(config['always-on-top'] !== false);
+  }
+  return config;
+});
+
+ipcMain.handle('get-history', () => history);
+
+ipcMain.handle('add-history', (event, entry) => {
+  const maxSize = config['history-size'] || 10;
+  if (maxSize <= 0) return history;
+  history.unshift({
+    ...entry,
+    timestamp: Date.now()
+  });
+  if (history.length > maxSize) history = history.slice(0, maxSize);
+  saveHistory();
+  return history;
+});
+
+ipcMain.handle('clear-history', () => {
+  history = [];
+  saveHistory();
+  return history;
+});
+
+ipcMain.handle('copy-to-clipboard', (event, text) => {
+  if (mainWindow) {
+    mainWindow.webContents.clipboard.writeText(text);
+  }
+});
+
+app.whenReady().then(() => {
+  loadConfig();
+  loadHistory();
+  createWindow();
+  createTray();
+  registerShortcuts();
+});
+
+app.on('will-quit', () => {
+  globalShortcut.unregisterAll();
+});
+
+app.on('window-all-closed', () => {});
+
+app.on('activate', () => {
+  if (!mainWindow) createWindow();
+});

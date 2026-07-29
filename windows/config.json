@@ -1,0 +1,20 @@
+{
+  "source-lang": "auto",
+  "target-lang": "en",
+  "indicator-style": "icon",
+  "indicator-text": "T",
+  "indicator-icon": "edit-find-symbolic",
+  "button-color": "default",
+  "auto-clipboard": false,
+  "shortcut-key": "Ctrl+Shift+T",
+  "history-size": 10,
+  "max-text-length": 5000,
+  "show-indicator": true,
+  "menu-bg-color": "default",
+  "menu-opacity": 1.0,
+  "result-bg-color": "default",
+  "input-bg-color": "default",
+  "window-width": 380,
+  "window-height": 520,
+  "always-on-top": true
+}

@@ -1,0 +1,54 @@
+{
+  "name": "neotraductor-windows",
+  "version": "1.2.0",
+  "description": "Traductor multilingüe con Google Translate - Versión Windows",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:win": "electron-builder --win msi",
+    "build:win-portable": "electron-builder --win portable"
+  },
+  "author": {
+    "name": "Yamith Romero",
+    "email": "yamithr@users.noreply.github.com"
+  },
+  "license": "MIT",
+  "build": {
+    "appId": "com.yamithr.neotraductor",
+    "productName": "NeoTraductor",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**/*",
+      "utils/**/*",
+      "config.json",
+      "assets/**/*"
+    ],
+    "win": {
+      "target": [
+        "msi"
+      ],
+      "icon": "assets/icon.png",
+      "artifactName": "NeoTraductor_${version}_win64.${ext}",
+      "signAndEditExecutable": false
+    },
+    "msi": {
+      "oneClick": false,
+      "perMachine": true,
+      "runAfterFinish": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "NeoTraductor"
+    },
+    "extraResources": [
+      "assets/**"
+    ]
+  },
+  "devDependencies": {
+    "electron": "^35.7.5",
+    "electron-builder": "^25.1.8"
+  }
+}
