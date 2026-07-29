@@ -74,6 +74,14 @@ function createWindow() {
   const workArea = screen.getPrimaryDisplay().workAreaSize;
   const winWidth = config['window-width'] || 380;
   const winHeight = config['window-height'] || 520;
+  const iconPath = path.join(__dirname, 'assets', 'icon.ico');
+  let winIcon;
+  try {
+    winIcon = nativeImage.createFromPath(iconPath);
+    if (winIcon.isEmpty()) winIcon = undefined;
+  } catch {
+    winIcon = undefined;
+  }
 
   mainWindow = new BrowserWindow({
     width: winWidth,
@@ -86,6 +94,7 @@ function createWindow() {
     skipTaskbar: true,
     alwaysOnTop: config['always-on-top'] !== false,
     show: false,
+    icon: winIcon,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
@@ -128,13 +137,11 @@ function showWindow() {
 }
 
 function createTray() {
-  const iconPath = path.join(__dirname, 'assets', 'tray-icon.png');
+  const iconPath = path.join(__dirname, 'assets', 'icon.ico');
   let trayIcon;
   try {
-    trayIcon = nativeImage.createFromPath(iconPath);
-    if (trayIcon.isEmpty()) {
-      trayIcon = nativeImage.createEmpty();
-    }
+    const img = nativeImage.createFromPath(iconPath);
+    trayIcon = img.isEmpty() ? nativeImage.createEmpty() : img.resize({ width: 32, height: 32 });
   } catch {
     trayIcon = nativeImage.createEmpty();
   }

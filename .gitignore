@@ -1,0 +1,7 @@
+windows/dist/
+windows/node_modules/
+windows/.icon-ico/
+dist/
+node_modules/
+.DS_Store
+*.log
