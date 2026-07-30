@@ -149,12 +149,9 @@ function createTray() {
   const iconPath = path.join(__dirname, 'assets', 'icon.ico');
   let trayIcon;
   try {
-    const img = nativeImage.createFromPath(iconPath);
-    if (!img.isEmpty()) {
-      trayIcon = img.resize({ width: 16, height: 16 });
-    } else {
-      trayIcon = nativeImage.createEmpty();
-    }
+    const iconPng = path.join(__dirname, 'assets', 'tray-icon.png');
+    const img = nativeImage.createFromPath(iconPng);
+    trayIcon = img.isEmpty() ? nativeImage.createEmpty() : img.resize({ width: 16, height: 16 });
   } catch {
     trayIcon = nativeImage.createEmpty();
   }
@@ -261,11 +258,11 @@ ipcMain.handle('copy-to-clipboard', (event, text) => {
 
 ipcMain.handle('get-app-info', () => ({
   name: 'NeoTraductor',
-  version: '1.1.0',
+  version: '1.2.1',
   description: 'Traductor automático desde la bandeja del sistema',
   author: 'Yamith Romero',
   email: 'yamithr@users.noreply.github.com',
-  github: 'https://github.com/YamithR/NeoTraductorGenomeShell',
+  github: 'https://github.com/YamithR',
   repo: 'https://github.com/YamithR/NeoTraductorGenomeShell'
 }));
 

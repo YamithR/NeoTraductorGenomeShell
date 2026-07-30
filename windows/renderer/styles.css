@@ -295,6 +295,8 @@ textarea:hover {
   background: rgba(255, 255, 255, 0.2);
 }
 
+.modal.hidden { display: none !important; }
+
 .modal {
   position: fixed;
   top: 0;

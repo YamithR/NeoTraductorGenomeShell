@@ -332,6 +332,8 @@ async function openAbout() {
     <div class="ab-section">Desarrollador</div>
     <div>${escapeHtml(info.author)}</div>
     <div><a href="mailto:${escapeHtml(info.email)}" class="ab-link">${escapeHtml(info.email)}</a></div>
+    <div class="ab-section">GitHub</div>
+    <div><a href="${escapeHtml(info.github)}" class="ab-link" target="_blank">${escapeHtml(info.github)}</a></div>
     <div class="ab-section">Repositorio</div>
     <div><a href="${escapeHtml(info.repo)}" class="ab-link" target="_blank">${escapeHtml(info.repo)}</a></div>
   `;
