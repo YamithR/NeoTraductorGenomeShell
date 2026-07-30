@@ -68,6 +68,8 @@ body {
   padding: 12px;
   background-color: rgba(30, 30, 30, 0.97);
   border-radius: 0 0 12px 12px;
+  height: calc(100vh - 36px);
+  overflow-y: auto;
 }
 
 .lang-row {
@@ -295,8 +297,6 @@ textarea:hover {
   background: rgba(255, 255, 255, 0.2);
 }
 
-.modal.hidden { display: none !important; }
-
 .modal {
   position: fixed;
   top: 0;
@@ -425,3 +425,5 @@ textarea:hover {
 .about-body .ab-link:hover {
   text-decoration: underline;
 }
+
+.modal.hidden { display: none !important; }

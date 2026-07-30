@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Tray, Menu, globalShortcut, nativeImage, ipcMain, screen } = require('electron');
+const { app, BrowserWindow, Tray, Menu, globalShortcut, nativeImage, ipcMain, screen, clipboard } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -251,9 +251,7 @@ ipcMain.handle('clear-history', () => {
 });
 
 ipcMain.handle('copy-to-clipboard', (event, text) => {
-  if (mainWindow) {
-    mainWindow.webContents.clipboard.writeText(text);
-  }
+  clipboard.writeText(text);
 });
 
 ipcMain.handle('get-app-info', () => ({
