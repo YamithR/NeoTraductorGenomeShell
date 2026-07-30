@@ -8,5 +8,10 @@ contextBridge.exposeInMainWorld('neotraductor', {
   addHistory: (entry) => ipcRenderer.invoke('add-history', entry),
   clearHistory: () => ipcRenderer.invoke('clear-history'),
   copyToClipboard: (text) => ipcRenderer.invoke('copy-to-clipboard', text),
-  onFocusInput: (callback) => ipcRenderer.on('focus-input', () => callback())
+  onFocusInput: (callback) => ipcRenderer.on('focus-input', () => callback()),
+  onOpenSettings: (callback) => ipcRenderer.on('open-settings', () => callback()),
+  onOpenAbout: (callback) => ipcRenderer.on('open-about', () => callback()),
+  getAppInfo: () => ipcRenderer.invoke('get-app-info'),
+  setShortcut: (shortcut) => ipcRenderer.invoke('set-shortcut', shortcut),
+  closeApp: () => ipcRenderer.send('close-app')
 });

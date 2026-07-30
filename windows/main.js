@@ -90,7 +90,9 @@ function createWindow() {
     y: 60,
     frame: false,
     transparent: true,
-    resizable: false,
+    resizable: true,
+    minWidth: 320,
+    minHeight: 400,
     skipTaskbar: true,
     alwaysOnTop: config['always-on-top'] !== false,
     show: false,
@@ -103,6 +105,13 @@ function createWindow() {
   });
 
   mainWindow.loadFile(path.join(__dirname, 'renderer', 'index.html'));
+
+  mainWindow.on('resize', () => {
+    const [w, h] = mainWindow.getSize();
+    config['window-width'] = w;
+    config['window-height'] = h;
+    saveConfig();
+  });
 
   mainWindow.on('blur', () => {
     if (!mainWindow?.isFocused()) {
@@ -141,7 +150,11 @@ function createTray() {
   let trayIcon;
   try {
     const img = nativeImage.createFromPath(iconPath);
-    trayIcon = img.isEmpty() ? nativeImage.createEmpty() : img.resize({ width: 32, height: 32 });
+    if (!img.isEmpty()) {
+      trayIcon = img.resize({ width: 16, height: 16 });
+    } else {
+      trayIcon = nativeImage.createEmpty();
+    }
   } catch {
     trayIcon = nativeImage.createEmpty();
   }
@@ -153,6 +166,23 @@ function createTray() {
     {
       label: 'Mostrar/Ocultar',
       click: () => showWindow()
+    },
+    { type: 'separator' },
+    {
+      label: 'Configurar atajo...',
+      click: () => {
+        if (!mainWindow) createWindow();
+        mainWindow.webContents.send('open-settings');
+        showWindow();
+      }
+    },
+    {
+      label: 'Acerca de...',
+      click: () => {
+        if (!mainWindow) createWindow();
+        mainWindow.webContents.send('open-about');
+        showWindow();
+      }
     },
     { type: 'separator' },
     {
@@ -229,12 +259,34 @@ ipcMain.handle('copy-to-clipboard', (event, text) => {
   }
 });
 
+ipcMain.handle('get-app-info', () => ({
+  name: 'NeoTraductor',
+  version: '1.1.0',
+  description: 'Traductor automático desde la bandeja del sistema',
+  author: 'Yamith Romero',
+  email: 'yamithr@users.noreply.github.com',
+  github: 'https://github.com/YamithR/NeoTraductorGenomeShell',
+  repo: 'https://github.com/YamithR/NeoTraductorGenomeShell'
+}));
+
+ipcMain.handle('set-shortcut', (event, shortcut) => {
+  config['shortcut-key'] = shortcut;
+  saveConfig();
+  registerShortcuts();
+  return true;
+});
+
 app.whenReady().then(() => {
   loadConfig();
   loadHistory();
   createWindow();
   createTray();
   registerShortcuts();
+});
+
+ipcMain.on('close-app', () => {
+  isQuitting = true;
+  app.quit();
 });
 
 app.on('will-quit', () => {

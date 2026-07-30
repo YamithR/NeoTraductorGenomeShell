@@ -4,6 +4,7 @@ let currentConfig = {};
 let sourceLang = 'auto';
 let targetLang = 'en';
 let lastResult = '';
+let listeningForShortcut = false;
 
 function $(id) { return document.getElementById(id); }
 
@@ -18,6 +19,7 @@ async function init() {
   const history = await api.getHistory();
   renderHistory(history);
 
+  applyConfigUI();
   setupEventListeners();
 }
 
@@ -94,10 +96,14 @@ function populateLanguageSelect(id, selected) {
   }
 }
 
+function applyConfigUI() {
+  $('ontopToggle').checked = currentConfig['always-on-top'] !== false;
+  $('autoClipToggle').checked = currentConfig['auto-clipboard'] === true;
+  $('shortcutInput').value = currentConfig['shortcut-key'] || 'Ctrl+Shift+T';
+}
+
 function setupEventListeners() {
-  $('closeBtn').addEventListener('click', () => {
-    window.close();
-  });
+  $('closeBtn').addEventListener('click', () => api.closeApp());
 
   $('swapBtn').addEventListener('click', swapLanguages);
   $('translateBtn').addEventListener('click', doTranslate);
@@ -136,6 +142,59 @@ function setupEventListeners() {
   api.onFocusInput(() => {
     $('textInput').focus();
   });
+
+  $('settingsBtn').addEventListener('click', () => openSettings());
+  $('settingsClose').addEventListener('click', () => closeSettings());
+  $('settingsModal').addEventListener('click', (e) => {
+    if (e.target === $('settingsModal')) closeSettings();
+  });
+
+  $('infoBtn').addEventListener('click', () => openAbout());
+  $('aboutClose').addEventListener('click', () => closeAbout());
+  $('aboutModal').addEventListener('click', (e) => {
+    if (e.target === $('aboutModal')) closeAbout();
+  });
+
+  $('shortcutBtn').addEventListener('click', () => startShortcutListen());
+  $('shortcutInput').addEventListener('click', () => startShortcutListen());
+
+  document.addEventListener('keydown', (e) => {
+    if (listeningForShortcut) {
+      e.preventDefault();
+      const parts = [];
+      if (e.ctrlKey) parts.push('Ctrl');
+      if (e.altKey) parts.push('Alt');
+      if (e.shiftKey) parts.push('Shift');
+      if (e.metaKey) parts.push('Super');
+      const key = e.key;
+      if (!['Control', 'Alt', 'Shift', 'Meta'].includes(key)) {
+        parts.push(key.length === 1 ? key.toUpperCase() : key);
+        const shortcut = parts.join('+');
+        $('shortcutInput').value = shortcut;
+        listeningForShortcut = false;
+        api.setShortcut(shortcut);
+      }
+    }
+  });
+
+  $('ontopToggle').addEventListener('change', () => {
+    currentConfig['always-on-top'] = $('ontopToggle').checked;
+    api.setConfig({ 'always-on-top': currentConfig['always-on-top'] });
+  });
+
+  $('autoClipToggle').addEventListener('change', () => {
+    currentConfig['auto-clipboard'] = $('autoClipToggle').checked;
+    api.setConfig({ 'auto-clipboard': currentConfig['auto-clipboard'] });
+  });
+
+  api.onOpenSettings(() => openSettings());
+  api.onOpenAbout(() => openAbout());
+}
+
+function startShortcutListen() {
+  listeningForShortcut = true;
+  $('shortcutInput').value = 'Presiona...';
+  $('shortcutInput').focus();
 }
 
 function swapLanguages() {
@@ -252,6 +311,35 @@ function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
+}
+
+function openSettings() {
+  applyConfigUI();
+  $('settingsModal').classList.remove('hidden');
+}
+
+function closeSettings() {
+  $('settingsModal').classList.add('hidden');
+  listeningForShortcut = false;
+}
+
+async function openAbout() {
+  const info = await api.getAppInfo();
+  $('aboutContent').innerHTML = `
+    <div class="ab-title">${escapeHtml(info.name)}</div>
+    <div class="ab-version">v${escapeHtml(info.version)}</div>
+    <div>${escapeHtml(info.description)}</div>
+    <div class="ab-section">Desarrollador</div>
+    <div>${escapeHtml(info.author)}</div>
+    <div><a href="mailto:${escapeHtml(info.email)}" class="ab-link">${escapeHtml(info.email)}</a></div>
+    <div class="ab-section">Repositorio</div>
+    <div><a href="${escapeHtml(info.repo)}" class="ab-link" target="_blank">${escapeHtml(info.repo)}</a></div>
+  `;
+  $('aboutModal').classList.remove('hidden');
+}
+
+function closeAbout() {
+  $('aboutModal').classList.add('hidden');
 }
 
 document.addEventListener('DOMContentLoaded', init);
