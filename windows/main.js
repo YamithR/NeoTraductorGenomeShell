@@ -259,7 +259,7 @@ ipcMain.handle('get-app-info', () => ({
   version: '1.2.1',
   description: 'Traductor automático desde la bandeja del sistema',
   author: 'Yamith Romero',
-  email: 'yamithr@users.noreply.github.com',
+  email: 'yamithromero@hotmail.com',
   github: 'https://github.com/YamithR',
   repo: 'https://github.com/YamithR/NeoTraductorGenomeShell'
 }));
